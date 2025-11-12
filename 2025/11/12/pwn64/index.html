@@ -20,23 +20,23 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="pwn64ctf.show pwn64 目录 题目 预计时间 题目分析及截图  题目 预计时间1h 题目分析及截图我们先checksec一下看看程序的保护机制  可以看到NX保护机制是开启的，那么是不是就意味着shellcode用不了？？我们往下看看 我们用ida查看程序的main函数">
+  <meta name="description" content="pwn64ctf.show pwn64">
 <meta property="og:type" content="article">
-<meta property="og:title" content="yangyunhui">
-<meta property="og:url" content="http://example.com/2025/11/10/pwn%2064/index.html">
+<meta property="og:title" content="pwn64">
+<meta property="og:url" content="http://example.com/2025/11/12/pwn64/index.html">
 <meta property="og:site_name" content="yangyunhui">
-<meta property="og:description" content="pwn64ctf.show pwn64 目录 题目 预计时间 题目分析及截图  题目 预计时间1h 题目分析及截图我们先checksec一下看看程序的保护机制  可以看到NX保护机制是开启的，那么是不是就意味着shellcode用不了？？我们往下看看 我们用ida查看程序的main函数">
+<meta property="og:description" content="pwn64ctf.show pwn64">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="c:\Users\ASUS\hexo-blog\source_posts\pwn64\1.png">
-<meta property="og:image" content="c:\Users\ASUS\hexo-blog\source_posts\pwn64\2.png">
-<meta property="article:published_time" content="2025-11-10T13:07:32.830Z">
-<meta property="article:modified_time" content="2025-11-12T05:46:12.840Z">
+<meta property="og:image" content="e:\hexo-blog\source_posts\images\1.png">
+<meta property="og:image" content="e:\hexo-blog\source_posts\images\2.png">
+<meta property="article:published_time" content="2025-11-12T05:48:24.000Z">
+<meta property="article:modified_time" content="2025-11-12T13:06:14.134Z">
 <meta property="article:author" content="yangyunhui">
-<meta property="article:tag" content="CTF,reverse,pwn">
+<meta property="article:tag" content="CTF PWN 网络安全">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="c:\Users\ASUS\hexo-blog\source_posts\pwn64\1.png">
+<meta name="twitter:image" content="e:\hexo-blog\source_posts\images\1.png">
 
-<link rel="canonical" href="http://example.com/2025/11/10/pwn%2064/">
+<link rel="canonical" href="http://example.com/2025/11/12/pwn64/">
 
 
 <script id="page-configurations">
@@ -49,7 +49,7 @@
   };
 </script>
 
-  <title> | yangyunhui</title>
+  <title>pwn64 | yangyunhui</title>
   
 
 
@@ -193,7 +193,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/10/pwn%2064/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/12/pwn64/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/tx.jpg">
@@ -206,7 +206,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          
+          pwn64
         </h1>
 
         <div class="post-meta">
@@ -215,16 +215,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2025-11-10 21:07:32" itemprop="dateCreated datePublished" datetime="2025-11-10T21:07:32+08:00">2025-11-10</time>
+              <time title="创建时间：2025-11-12 13:48:24 / 修改时间：21:06:14" itemprop="dateCreated datePublished" datetime="2025-11-12T13:48:24+08:00">2025-11-12</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-11-12 13:46:12" itemprop="dateModified" datetime="2025-11-12T13:46:12+08:00">2025-11-12</time>
-              </span>
 
           
             <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
@@ -259,19 +253,19 @@
 
       
         <h2 id="pwn64"><a href="#pwn64" class="headerlink" title="pwn64"></a>pwn64</h2><p><a target="_blank" rel="noopener" href="https://ctf.show/challenges#pwn64-4074">ctf.show pwn64</a></p>
+<span id="more"></span>
+
 <h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
 <li><a href="#jump1">题目</a></li>
 <li><a href="#jump2">预计时间</a></li>
 <li><a href="#jump3">题目分析及截图</a></li>
 </ul>
-<h4 id="题目"><a href="#题目" class="headerlink" title="题目"></a><a id='jump1'>题目</a></h4><p><img src="C:\Users\ASUS\hexo-blog\source_posts\pwn64\1.png" alt="1"></p>
+<h4 id="题目"><a href="#题目" class="headerlink" title="题目"></a><a id='jump1'>题目</a></h4><p><img src="E:\hexo-blog\source_posts\images\1.png" alt="1"></p>
 <h4 id="预计时间"><a href="#预计时间" class="headerlink" title="预计时间"></a><a id ='jump2'>预计时间</a></h4><p>1h</p>
 <h4 id="题目分析及截图"><a href="#题目分析及截图" class="headerlink" title="题目分析及截图"></a><a>题目分析及截图</a></h4><p>我们先<code>checksec</code>一下看看程序的保护机制</p>
-<p><img src="C:\Users\ASUS\hexo-blog\source_posts\pwn64\2.png" alt="2"></p>
+<p><img src="E:\hexo-blog\source_posts\images\2.png" alt="2"></p>
 <p>可以看到NX保护机制是开启的，那么是不是就意味着<code>shellcode</code>用不了？？我们往下看看</p>
 <p>我们用ida查看程序的main函数</p>
-<span id="more"></span>
-
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> __cdecl <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">const</span> <span class="type">char</span> **argv, <span class="type">const</span> <span class="type">char</span> **envp)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">void</span> *buf; <span class="comment">// [esp+8h] [ebp-10h]</span></span><br><span class="line"></span><br><span class="line">  buf = mmap(<span class="number">0</span>, <span class="number">0x400u</span>, <span class="number">7</span>, <span class="number">34</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">  alarm(<span class="number">0xAu</span>);</span><br><span class="line">  setvbuf(<span class="built_in">stdout</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>);</span><br><span class="line">  setvbuf(_bss_start, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Some different!&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> ( read(<span class="number">0</span>, buf, <span class="number">0x400u</span>) &lt; <span class="number">0</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;Illegal entry!&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  ((<span class="type">void</span> (*)(<span class="type">void</span>))buf)();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ol>
@@ -314,6 +308,9 @@
     
 
       <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CTF-PWN-%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/" rel="tag"># CTF PWN 网络安全</a>
+          </div>
 
         
 
@@ -408,7 +405,7 @@
         <span class="site-state-item-name">分类</span>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-count">2</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
