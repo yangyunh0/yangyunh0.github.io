@@ -11,11 +11,11 @@
 <li><a href="#jump2">预计时间</a></li>
 <li><a href="#jump3">题目分析及截图</a></li>
 </ul>
-<h4 id="题目"><a href="#题目" class="headerlink" title="题目"></a><a id='jump1'>题目</a></h4>
+<h4 id="题目"><a href="#题目" class="headerlink" title="题目"></a><a id='jump1'>题目</a></h4><img src="/2025/11/12/pwn64/1.png" class="" title="This is an image">
 
 <h4 id="预计时间"><a href="#预计时间" class="headerlink" title="预计时间"></a><a id ='jump2'>预计时间</a></h4><p>1h</p>
 <h4 id="题目分析及截图"><a href="#题目分析及截图" class="headerlink" title="题目分析及截图"></a><a>题目分析及截图</a></h4><p>我们先<code>checksec</code>一下看看程序的保护机制</p>
-
+<img src="/2025/11/12/pwn64/2.png" class="" title="This is an image">
 
 <p>可以看到NX保护机制是开启的，那么是不是就意味着<code>shellcode</code>用不了？？我们往下看看</p>
 <p>我们用ida查看程序的main函数</p>
