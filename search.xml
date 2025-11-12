@@ -1,40 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Hello World</title>
-    <url>/2025/11/10/hello-world/</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-]]></content>
-  </entry>
-  <entry>
-    <title>测试文章</title>
-    <url>/2021/06/10/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/</url>
-    <content><![CDATA[<p>这是一篇测试文章</p>
-<img src="/2021/06/10/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/test.png" class="" title="图片引用方法一">
-
-<p><img src="/test.png" alt="图片引用方法二"> <img src="/images/test.png" alt="图片引用方法三"></p>
-<p><img src="/images/test.png" alt="图片引用方法三"></p>
-]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-      <tags>
-        <tag>原创</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>pwn64</title>
     <url>/2025/11/12/pwn64/</url>
     <content><![CDATA[<h2 id="pwn64"><a href="#pwn64" class="headerlink" title="pwn64"></a>pwn64</h2><p><a href="https://ctf.show/challenges#pwn64-4074">ctf.show pwn64</a></p>
@@ -45,10 +11,10 @@
 <li><a href="#jump2">预计时间</a></li>
 <li><a href="#jump3">题目分析及截图</a></li>
 </ul>
-<h4 id="题目"><a href="#题目" class="headerlink" title="题目"></a><a id='jump1'>题目</a></h4><p><img src="E:\hexo-blog\source_posts\images\1.png" alt="1"></p>
+<h4 id="题目"><a href="#题目" class="headerlink" title="题目"></a><a id='jump1'>题目</a></h4><p><img src="/pwn64%5C1.png" alt="1"></p>
 <h4 id="预计时间"><a href="#预计时间" class="headerlink" title="预计时间"></a><a id ='jump2'>预计时间</a></h4><p>1h</p>
 <h4 id="题目分析及截图"><a href="#题目分析及截图" class="headerlink" title="题目分析及截图"></a><a>题目分析及截图</a></h4><p>我们先<code>checksec</code>一下看看程序的保护机制</p>
-<p><img src="E:\hexo-blog\source_posts\images\2.png" alt="2"></p>
+<p><img src="/pwn64%5C2.png" alt="2"></p>
 <p>可以看到NX保护机制是开启的，那么是不是就意味着<code>shellcode</code>用不了？？我们往下看看</p>
 <p>我们用ida查看程序的main函数</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> __cdecl <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">const</span> <span class="type">char</span> **argv, <span class="type">const</span> <span class="type">char</span> **envp)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">void</span> *buf; <span class="comment">// [esp+8h] [ebp-10h]</span></span><br><span class="line"></span><br><span class="line">  buf = mmap(<span class="number">0</span>, <span class="number">0x400u</span>, <span class="number">7</span>, <span class="number">34</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">  alarm(<span class="number">0xAu</span>);</span><br><span class="line">  setvbuf(<span class="built_in">stdout</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>);</span><br><span class="line">  setvbuf(_bss_start, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Some different!&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> ( read(<span class="number">0</span>, buf, <span class="number">0x400u</span>) &lt; <span class="number">0</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;Illegal entry!&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  ((<span class="type">void</span> (*)(<span class="type">void</span>))buf)();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
