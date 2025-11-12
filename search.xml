@@ -11,10 +11,12 @@
 <li><a href="#jump2">预计时间</a></li>
 <li><a href="#jump3">题目分析及截图</a></li>
 </ul>
-<h4 id="题目"><a href="#题目" class="headerlink" title="题目"></a><a id='jump1'>题目</a></h4><p><img src="/pwn64%5C1.png" alt="1"></p>
+<h4 id="题目"><a href="#题目" class="headerlink" title="题目"></a><a id='jump1'>题目</a></h4>
+
 <h4 id="预计时间"><a href="#预计时间" class="headerlink" title="预计时间"></a><a id ='jump2'>预计时间</a></h4><p>1h</p>
 <h4 id="题目分析及截图"><a href="#题目分析及截图" class="headerlink" title="题目分析及截图"></a><a>题目分析及截图</a></h4><p>我们先<code>checksec</code>一下看看程序的保护机制</p>
-<p><img src="/pwn64%5C2.png" alt="2"></p>
+
+
 <p>可以看到NX保护机制是开启的，那么是不是就意味着<code>shellcode</code>用不了？？我们往下看看</p>
 <p>我们用ida查看程序的main函数</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> __cdecl <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">const</span> <span class="type">char</span> **argv, <span class="type">const</span> <span class="type">char</span> **envp)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">void</span> *buf; <span class="comment">// [esp+8h] [ebp-10h]</span></span><br><span class="line"></span><br><span class="line">  buf = mmap(<span class="number">0</span>, <span class="number">0x400u</span>, <span class="number">7</span>, <span class="number">34</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">  alarm(<span class="number">0xAu</span>);</span><br><span class="line">  setvbuf(<span class="built_in">stdout</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>);</span><br><span class="line">  setvbuf(_bss_start, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Some different!&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> ( read(<span class="number">0</span>, buf, <span class="number">0x400u</span>) &lt; <span class="number">0</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;Illegal entry!&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  ((<span class="type">void</span> (*)(<span class="type">void</span>))buf)();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
