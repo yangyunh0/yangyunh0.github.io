@@ -106,7 +106,7 @@
 <p>现在你应该知道为什么不需要爆破canary了</p>
 <p><strong>现在我们要计算输入v5的地址是多少</strong></p>
 <p>我画了一个栈的图更方便我们去理解（上面是高地址，下面是低地址）</p>
-<img src="/2025/11/16/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn67/3.png" class="" title="This is an image">
+<img src="/2025/11/16/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn67/3.png" class="" title="style&#x3D;transform: scale(0.15); This is an image">
 
 <ol>
 <li><p>**v1距seed的距离：**v1的位置是<code>ebp-15h</code>那么它与query_position的ebp的距离是<code>15h</code></p>
