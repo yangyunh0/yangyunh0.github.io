@@ -22,18 +22,18 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="pwn68ctf.show pwn68   目录 题目 预计时间 题目分析与截图   题目  预计时间2h 题目分析与截图 nop seld 的原理我在pwn67的wp中提到，这里我不在说了  这道题和前面的pwn67几乎是一样的题目，唯一不同就是pwn67是32位，pwn68是64位。 我们先checksec看一下程序的保护机制   和pwn67一样都是开启的canary但是没有开NX,那么我们">
+  <meta name="description" content="pwn68ctf.show pwn68">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ctfshow pwn入门 pwn68">
 <meta property="og:url" content="http://example.com/2025/11/17/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn68/index.html">
 <meta property="og:site_name" content="yangyunhui">
-<meta property="og:description" content="pwn68ctf.show pwn68   目录 题目 预计时间 题目分析与截图   题目  预计时间2h 题目分析与截图 nop seld 的原理我在pwn67的wp中提到，这里我不在说了  这道题和前面的pwn67几乎是一样的题目，唯一不同就是pwn67是32位，pwn68是64位。 我们先checksec看一下程序的保护机制   和pwn67一样都是开启的canary但是没有开NX,那么我们">
+<meta property="og:description" content="pwn68ctf.show pwn68">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2025/11/17/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn68/1.png">
 <meta property="og:image" content="http://example.com/2025/11/17/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn68/2.png">
 <meta property="og:image" content="http://example.com/2025/11/17/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn68/3.jpg">
 <meta property="article:published_time" content="2025-11-17T07:31:12.000Z">
-<meta property="article:modified_time" content="2025-11-17T12:57:27.119Z">
+<meta property="article:modified_time" content="2025-11-17T13:03:22.424Z">
 <meta property="article:author" content="yangyunhui">
 <meta property="article:tag" content="CTF">
 <meta property="article:tag" content="PWN">
@@ -218,7 +218,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2025-11-17 15:31:12 / 修改时间：20:57:27" itemprop="dateCreated datePublished" datetime="2025-11-17T15:31:12+08:00">2025-11-17</time>
+              <time title="创建时间：2025-11-17 15:31:12 / 修改时间：21:03:22" itemprop="dateCreated datePublished" datetime="2025-11-17T15:31:12+08:00">2025-11-17</time>
             </span>
 
           
@@ -254,7 +254,7 @@
 
       
         <h2 id="pwn68"><a href="#pwn68" class="headerlink" title="pwn68"></a>pwn68</h2><p><a target="_blank" rel="noopener" href="https://ctf.show/challenges#pwn68-4078">ctf.show pwn68</a></p>
-<!--readmore-->
+<span id="more"></span>
 
 <h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
 <li><a href="#jump1">题目</a></li>
