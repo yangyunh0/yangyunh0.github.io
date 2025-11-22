@@ -332,17 +332,17 @@
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line">__int64 __fastcall <span class="title function_">main</span><span class="params">(<span class="type">int</span> a1, <span class="type">char</span> **a2, <span class="type">char</span> **a3)</span></span><br><span class="line">&#123;</span><br><span class="line">  mmap((<span class="type">void</span> *)<span class="number">0x123000</span>, <span class="number">0x1000u</span>LL, <span class="number">6</span>, <span class="number">34</span>, <span class="number">-1</span>, <span class="number">0LL</span>);</span><br><span class="line">  sub_400949();</span><br><span class="line">  sub_400906();</span><br><span class="line">  sub_400A16();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0LL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ol start="2">
-<li><strong>sub_400949()</strong> 函数</li>
+<li><strong>sub_400949()函数</strong></li>
 </ol>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line">__int64 <span class="title function_">sub_400949</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  __int64 v1; <span class="comment">// [rsp+8h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v1 = seccomp_init(<span class="number">0LL</span>);</span><br><span class="line">  seccomp_rule_add(v1, <span class="number">2147418112LL</span>, <span class="number">0LL</span>, <span class="number">0LL</span>);</span><br><span class="line">  seccomp_rule_add(v1, <span class="number">2147418112LL</span>, <span class="number">1LL</span>, <span class="number">0LL</span>);</span><br><span class="line">  seccomp_rule_add(v1, <span class="number">2147418112LL</span>, <span class="number">2LL</span>, <span class="number">0LL</span>);</span><br><span class="line">  seccomp_rule_add(v1, <span class="number">2147418112LL</span>, <span class="number">60LL</span>, <span class="number">0LL</span>);</span><br><span class="line">  <span class="keyword">return</span> seccomp_load(v1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ol start="3">
-<li>**sub_400A16()**函数</li>
+<li><strong>sub_400A16()函数</strong></li>
 </ol>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">sub_400A16</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">char</span> buf[<span class="number">32</span>]; <span class="comment">// [rsp+0h] [rbp-20h] BYREF</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Now you can use ORW to do&quot;</span>);</span><br><span class="line">  read(<span class="number">0</span>, buf, <span class="number">0x38u</span>LL);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">&quot;No you don&#x27;t understand I say!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ol start="4">
-<li>**sub_4009EE()**函数</li>
+<li><strong>sub_4009EE()函数</strong></li>
 </ol>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">sub_4009EE</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  __asm &#123; jmp     rsp &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -399,7 +399,7 @@
 </li>
 <li><p>栈偏移完全不对</p>
 <pre><code>     3. 覆盖不到正确的RIP
-     4. 触发不了ROP
+           4. 触发不了ROP
 </code></pre>
 </li>
 </ol>
@@ -455,7 +455,7 @@
 <p>​	希望可以帮到你，加油！</p>
 ]]></content>
       <tags>
-        <tag>— CTF - pwn - 网络安全</tag>
+        <tag>CTF - PWN - 网络安全</tag>
       </tags>
   </entry>
 </search>
