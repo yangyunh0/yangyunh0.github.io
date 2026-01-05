@@ -922,8 +922,8 @@
 <li><p><strong>跨域安全限制</strong></p>
 <p>WebAssembly文件(.wasm)不能像图片那样直接加载，需要通过JavaScript的<code>fetch()</code>或者<code>WebAssembly.instantiateStreaming()</code>接口来获取数据</p>
 <ul>
-<li>**file协议：**浏览器出于安全考虑，严格限制<code>file://</code>协议下的脚本去读取本地文件系统中的其他文件。浏览器会认为这是”跨域请求”，从而拦截掉加载<code>.wasm</code>的行为。</li>
-<li>**http协议：**浏览器允许在同一域名（如localhost）下下载相关资源，这符合当代浏览器的安全模型。</li>
+<li><strong>file协议：</strong> 浏览器出于安全考虑，严格限制<code>file://</code>协议下的脚本去读取本地文件系统中的其他文件。浏览器会认为这是”跨域请求”，从而拦截掉加载<code>.wasm</code>的行为。</li>
+<li><strong>http协议：</strong> 浏览器允许在同一域名（如localhost）下下载相关资源，这符合当代浏览器的安全模型。</li>
 </ul>
 <p>这道题代码内部使用了fetch，并且我们还需要AssemblyScript的标准加载器来获取<code>release.wasm</code></p>
 <ol>
@@ -934,14 +934,14 @@
 </ol>
 <p>如果我们想快速开启<code>http</code>环境，可以在代码所在文件夹打开终端输入：</p>
 <ul>
-<li><strong>Python3：</strong><code>python -m http.server 8000</code></li>
+<li><strong>Python3：</strong> <code>python -m http.server 8000</code></li>
 </ul>
 <h4 id="为什么这个exp可以不用考虑时间的格式？"><a href="#为什么这个exp可以不用考虑时间的格式？" class="headerlink" title="为什么这个exp可以不用考虑时间的格式？"></a>为什么这个exp可以不用考虑时间的格式？</h4><p>我们使用“黑盒”，之所以不需要知道时间的格式，是因为在这个过程中，没有去手动”写”时间字符串，而是通过劫持系统函数，让程序自发地生成了正确的格式。</p>
 <ol>
 <li><p>在脚本中我们使用了<code>Date.now = () =&gt; t;</code>，它并不接收你传进去的字符串，而是调用系统接口获取当前毫秒数。当wasm拿到这个数字之后，它会用它自带的转换逻辑去生成JSON里面的时间字段。既然WASM在你的电脑上运行和在服务器上运行的是同一个文件，那么他生成的时间格式的逻辑（比如有没有小数点，是不是13位）就一定是一模一样的。</p>
 </li>
-<li><p><strong><code>JSON.parse(...)</code></strong>：把这一串文本拆解回了 JavaScript 的“纯数据对象”。在对象状态下，<strong>格式是不存在的</strong>，只有键值对。</p>
-<p><strong><code>JSON.stringify(...)</code></strong>：把你拆解出来的“纯数据”重新按照 Node.js 的标准打包。</p>
+<li><p><strong><code>JSON.parse(...)</code></strong> ：把这一串文本拆解回了 JavaScript 的“纯数据对象”。在对象状态下，<strong>格式是不存在的</strong>，只有键值对。</p>
+<p><strong><code>JSON.stringify(...)</code></strong> ：把你拆解出来的“纯数据”重新按照 Node.js 的标准打包。</p>
 </li>
 </ol>
 <p>好长时间没写blog了，期末考试结束了，我终于可以再次拿起键盘了hhhh</p>
