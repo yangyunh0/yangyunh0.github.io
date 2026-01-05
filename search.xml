@@ -456,7 +456,9 @@
 <p>​	希望可以帮到你，加油！</p>
 ]]></content>
       <tags>
-        <tag>CTF - PWN - 网络安全</tag>
+        <tag>CTF</tag>
+        <tag>PWN</tag>
+        <tag>网络安全</tag>
       </tags>
   </entry>
   <entry>
@@ -547,7 +549,9 @@
 </ul>
 ]]></content>
       <tags>
-        <tag>CTF - PWN - 网络安全</tag>
+        <tag>CTF</tag>
+        <tag>PWN</tag>
+        <tag>网络安全</tag>
       </tags>
   </entry>
   <entry>
@@ -660,7 +664,9 @@
 <p>加油！</p>
 ]]></content>
       <tags>
-        <tag>CTF - PWN - 网络安全</tag>
+        <tag>CTF</tag>
+        <tag>PWN</tag>
+        <tag>网络安全</tag>
       </tags>
   </entry>
   <entry>
@@ -762,7 +768,9 @@
 <p>得到flag</p>
 ]]></content>
       <tags>
-        <tag>CTF - PWN - 网络安全</tag>
+        <tag>CTF</tag>
+        <tag>PWN</tag>
+        <tag>网络安全</tag>
       </tags>
   </entry>
   <entry>
@@ -816,7 +824,131 @@
 <p>​	</p>
 ]]></content>
       <tags>
-        <tag>CTF - PWN - 网络安全</tag>
+        <tag>CTF</tag>
+        <tag>PWN</tag>
+        <tag>网络安全</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2025长城杯 wasm-login</title>
+    <url>/2026/01/05/2025%E9%95%BF%E5%9F%8E%E6%9D%AF-wasm-login/</url>
+    <content><![CDATA[<h2 id="wasm-login"><a href="#wasm-login" class="headerlink" title="wasm-login"></a>wasm-login</h2><h4 id="长城杯逆向题目-wasm-login"><a href="#长城杯逆向题目-wasm-login" class="headerlink" title="长城杯逆向题目-wasm-login"></a><a href="">长城杯逆向题目-wasm-login</a></h4><span id="more"></span>
+
+<h4 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h4><ul>
+<li><a href="#1">刚开始写题的想法</a></li>
+<li><a href="2">题解</a></li>
+<li><a href="3">总结与反思</a></li>
+<li><a href="4">相关知识点</a></li>
+</ul>
+<hr>
+<h4 id="刚开始写题的想法"><a href="#刚开始写题的想法" class="headerlink" title="刚开始写题的想法"></a><a href="1">刚开始写题的想法</a></h4><p>​	刚开始写题的时候，就面临一个问题：当我打开<code>Index.html</code>的时候是直接双击打开，我根本不知道<code>file协议</code>，我也不知道当我们看见有<code>fetch</code>的时候是不能用<code>file</code>的，所以当我输入用户名和密码的时候既没有错误报错和正确提示，我感到很疑惑，为什么html代码里明明就有关于这部分的代码，但是我却触发不了。我就去问gemini，是因为我们是需要用http协议的（具体在<a href="4">相关知识点</a>中说），后来我就在终端中<code>python -m http.sever 8000</code>，然后在浏览器中打开<code>http://localhost:8000</code>。这是我遇见的第一个问题。</p>
+<p>​	第二个问题就是，我发现wasm文件是二进制文件，我在想要不要反编译它，虽然我最后还是反编译了，但是说实话，代码挺混乱的（<code>wasm2c release.wasm -o release.c</code>这里你也可以反编译成wat代码），很长很乱，我根本不知道怎么看</p>
+<p>​	第三个问题，到最后我知道是进行时间戳爆破，判断MD5值的开头是否和<code>ccaf33e3512e31f3</code>一样，但是这个时间格式是什么？？？因为一个空格一个横线都会导致MD5的值不同，那我们使用什么格式呢？？？</p>
+<h4 id="题解"><a href="#题解" class="headerlink" title="题解"></a><a href="2">题解</a></h4><p><strong>题目</strong> 是：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">某人本想在2025年12月第三个周末爆肝一个web安全登录demo，结果不仅搞到周一凌晨，他自己还忘了成功登录时的时间戳了，你能帮他找回来吗？提交格式为flag&#123;时间戳正确时的check值&#125;。是一个大括号内为一个32位长的小写十六进制字符串。</span><br></pre></td></tr></table></figure>
+
+<p>我们先看看题目给我们的附件</p>
+<img src="/2026/01/05/2025%E9%95%BF%E5%9F%8E%E6%9D%AF-wasm-login/1.png" class="" title="This is an example image">
+
+<p>看到这里的时候我们就知道它可能是一个Js逆向</p>
+<p>我们将这个网页打开，注意不能直接点开html文件（直接打开用的是file协议），这里我们要用http协议。</p>
+<p>我们使用</p>
+<ol>
+<li>python -m http.server 8000</li>
+<li>在浏览器中访问url:<code>http://localhost:8000</code></li>
+</ol>
+<p>这是正确打开网页的方式，打开网页之后我们可以看到这是一个登录页面，我们可以看看它的源代码</p>
+<p>在代码的最后一行有</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 测试账号 admin 测试密码 admin--&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>说明我们的账号和密码都是<code>admin</code></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">simulateServerRequest</span>(<span class="params">data</span>) &#123;</span><br><span class="line">          <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function"><span class="params">resolve</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="comment">// 模拟网络延迟</span></span><br><span class="line">            <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">              <span class="comment">// 实际应用中这里应该是真实的 API 请求</span></span><br><span class="line">              <span class="comment">// 这里仅作演示，使用本地判断</span></span><br><span class="line">              <span class="keyword">const</span> check = <span class="title class_">CryptoJS</span>.<span class="title class_">MD5</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(data)).<span class="title function_">toString</span>(<span class="title class_">CryptoJS</span>.<span class="property">enc</span>.<span class="property">Hex</span>);</span><br><span class="line">              <span class="keyword">if</span> (check.<span class="title function_">startsWith</span>(<span class="string">&quot;ccaf33e3512e31f3&quot;</span>))&#123;</span><br><span class="line">                <span class="title function_">resolve</span>(&#123; <span class="attr">success</span>: <span class="literal">true</span> &#125;);</span><br><span class="line">              &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="title function_">resolve</span>(&#123; <span class="attr">success</span>: <span class="literal">false</span> &#125;);</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;, <span class="number">1000</span>);</span><br><span class="line">          &#125;);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>最重要的是<code> CryptoJS.MD5(JSON.stringify(data)).toString(CryptoJS.enc.Hex);</code>我们逐步分析</p>
+<ul>
+<li><code>JSON.stringify(data)</code>，将data(wasm返回的对象)转化成标准json字符串，因为md5只能处理字符串或二进制数据，不能直接处理js对象</li>
+<li><code>CryptoJS.MD5(...)</code>，对上一步得到的字符串进行MD5哈希运算</li>
+<li><code>.toString(CryptoJS.enc.Hex)</code>将加密后的数据转化成16进制字符串</li>
+</ul>
+<p>得到该16进制字符串后，将它的开头和<code>ccaf33e3512e31f3</code>进行对比，如果一致则success</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 调用 WASM 中的 authenticate 函数</span></span><br><span class="line"><span class="keyword">const</span> authResult = <span class="title function_">authenticate</span>(username, password);</span><br><span class="line"><span class="keyword">const</span> authData = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(authResult);</span><br></pre></td></tr></table></figure>
+
+<p>我们需要查看wasm文件的内容，但是因为它是二进制编码，所以我们将它反编译成可读的wat文件，有很多方法，这里我说两种</p>
+<ol>
+<li>使用<a href="https://webassembly.github.io/wabt/demo/wasm2wat/">在线网站</a></li>
+<li>使用<code>wasm2wat</code>进行反编译</li>
+</ol>
+<p>我们可以看到</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">(import &quot;env&quot; &quot;abort&quot; (func $env.abort (type $t6)))(import &quot;env&quot; &quot;Date.now&quot; (func $env.Date.now (type $t9)))</span><br></pre></td></tr></table></figure>
+
+<p>它调用了Date.now()</p>
+<p>可以猜测，authenticate 函数结合用户名，密码，时间戳参数进行签名计算</p>
+<p>我们修改<code>Date.now()</code>函数为我们自定义函数，对时间戳进行重放爆破，然后将authenticate 函数作为黑盒调用，寻找目标签名值。</p>
+<p>完整exp</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; createHash &#125; <span class="keyword">from</span><span class="string">&quot;node:crypto&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; authenticate &#125; <span class="keyword">from</span><span class="string">&quot;./build/release.js&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> P = <span class="string">&quot;ccaf33e3512e31f3&quot;</span>;</span><br><span class="line"><span class="keyword">const</span> u = <span class="string">&quot;admin&quot;</span>, p = <span class="string">&quot;admin&quot;</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="title function_">T</span> = (<span class="params">x</span>) =&gt; (<span class="regexp">/^\d+$/</span>.<span class="title function_">test</span>(x) ? +x : <span class="keyword">new</span> <span class="title class_">Date</span>(x).<span class="title function_">getTime</span>());</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> s = <span class="title function_">T</span>(process.<span class="property">argv</span>[<span class="number">2</span>] ?? <span class="string">&quot;2025-12-22T00:00:00+08:00&quot;</span>);</span><br><span class="line"><span class="keyword">const</span> e = <span class="title function_">T</span>(process.<span class="property">argv</span>[<span class="number">3</span>] ?? <span class="string">&quot;2025-12-22T06:10:00+08:00&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> t = s; t &lt;= e; t++) &#123;</span><br><span class="line"><span class="title class_">Date</span>.<span class="property">now</span> = <span class="function">() =&gt;</span> t;</span><br><span class="line"><span class="keyword">const</span> j = <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(<span class="title class_">JSON</span>.<span class="title function_">parse</span>(<span class="title function_">authenticate</span>(u, p)));</span><br><span class="line"><span class="keyword">const</span> h = <span class="title function_">createHash</span>(<span class="string">&quot;md5&quot;</span>).<span class="title function_">update</span>(j).<span class="title function_">digest</span>(<span class="string">&quot;hex&quot;</span>);</span><br><span class="line"><span class="keyword">if</span> (h.<span class="title function_">startsWith</span>(P)) &#123; </span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;命中时间戳:&quot;</span>, t); </span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;对应时间:&quot;</span>, <span class="keyword">new</span> <span class="title class_">Date</span>(t).<span class="title function_">toString</span>());</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;最终结果:&quot;</span>, h); </span><br><span class="line">    <span class="keyword">break</span>; </span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键</strong></p>
+<ol>
+<li><p><code>Date.now = () =&gt; t;</code></p>
+<p>我们强行修改了全局的<code>Date.now()</code>函数</p>
+<p>WASM内部会调用<code>Date.now()</code>来获取当前时间戳，通过这一行，让WASM每运行一次都以为“现在”就是我们指定的那个毫秒，这就是重放爆破</p>
+</li>
+<li><p><code>const j = JSON.stringify(JSON.parse(authenticate(u, p)));</code></p>
+<p><strong>步骤</strong>：</p>
+<ol>
+<li><code>authenticate(u, p)</code>：让 WASM 按照我们伪造的时间 <code>t</code> 算出一串结果。</li>
+<li><code>JSON.parse(...)</code>：把结果变回对象。</li>
+<li><code>JSON.stringify(...)</code>：再变回标准的 JSON 字符串。</li>
+</ol>
+<p><strong>为什么这样写</strong>：这叫**“标准化”**。为了防止 WASM 返回的字符串里多一个空格、少一个换行导致 MD5 匹配失败。我们必须保证字符串格式和服务器（网页）校验时完全一致。</p>
+</li>
+</ol>
+<p>我们在终端运行脚本</p>
+<img src="/2026/01/05/2025%E9%95%BF%E5%9F%8E%E6%9D%AF-wasm-login/2.png" class="" title="This is an example image">
+
+<p>得到结果：<code>flag&#123;ccaf33e3512e31f36228f0b97ccbc8f1&#125;</code></p>
+<h4 id="总结与反思"><a href="#总结与反思" class="headerlink" title="总结与反思"></a><a href="3">总结与反思</a></h4><p>做题的时候，有几个问题需要改正</p>
+<ol>
+<li>在冗余的代码中没有必要弄清楚每一个细节，有时候需要合理的猜测</li>
+<li>在脚本中，我是需要爆破时间戳的，但是我一直想的是去换格式，我们是可以使用<code>JSON.stringify(JSON.parse(authenticate(u, p)));</code>,这里的<code>authenticate(u, p)</code>是一个黑盒调用，会自动生成时间戳。</li>
+<li>当我们不太清楚函数内的逻辑时，就可以进行黑盒调用</li>
+</ol>
+<h4 id="相关知识点"><a href="#相关知识点" class="headerlink" title="相关知识点"></a><a href="4">相关知识点</a></h4><h4 id="file协议与Http协议的区别"><a href="#file协议与Http协议的区别" class="headerlink" title="file协议与Http协议的区别"></a>file协议与Http协议的区别</h4><p>file协议主要用于本地计算机中的文件，好比通过资源管理器打开文件一样，它主要是针对本地的，即file协议是访问本地的资源，并且file协议无法实现跨域。</p>
+<p>http访问本地的html文件，相当于本机作为一台http服务器，然后通过localhost访问自己电脑上的本地服务器。</p>
+<p><strong>file只是请求了本地文件，将其作为静态文件打开，而http是在本地搭建了一个服务器再通过服务器去动态解析拿到文件</strong></p>
+<p><strong>但是在这道题中我们为什么知道这是用http协议打开的而不是使用file协议</strong>，主要原因如下：</p>
+<p>本道题涉及wasm，必须使用http协议（启动一个本地服务器）</p>
+<ol>
+<li><p><strong>跨域安全限制</strong></p>
+<p>WebAssembly文件(.wasm)不能像图片那样直接加载，需要通过JavaScript的<code>fetch()</code>或者<code>WebAssembly.instantiateStreaming()</code>接口来获取数据</p>
+<ul>
+<li>**file协议：**浏览器出于安全考虑，严格限制<code>file://</code>协议下的脚本去读取本地文件系统中的其他文件。浏览器会认为这是”跨域请求”，从而拦截掉加载<code>.wasm</code>的行为。</li>
+<li>**http协议：**浏览器允许在同一域名（如localhost）下下载相关资源，这符合当代浏览器的安全模型。</li>
+</ul>
+<p>这道题代码内部使用了fetch，并且我们还需要AssemblyScript的标准加载器来获取<code>release.wasm</code></p>
+<ol>
+<li>如果使用file协议，在控制台（F12）会报错，提示无法加载<code>wasm</code>文件</li>
+<li>如果使用http协议，所有文件都在服务器语境下，浏览器能正确获取文件，校验类型并运行逻辑</li>
+</ol>
+</li>
+</ol>
+<p>如果我们想快速开启<code>http</code>环境，可以在代码所在文件夹打开终端输入：</p>
+<ul>
+<li><strong>Python3：</strong><code>python -m http.server 8000</code></li>
+</ul>
+<h4 id="为什么这个exp可以不用考虑时间的格式？"><a href="#为什么这个exp可以不用考虑时间的格式？" class="headerlink" title="为什么这个exp可以不用考虑时间的格式？"></a>为什么这个exp可以不用考虑时间的格式？</h4><p>我们使用“黑盒”，之所以不需要知道时间的格式，是因为在这个过程中，没有去手动”写”时间字符串，而是通过劫持系统函数，让程序自发地生成了正确的格式。</p>
+<ol>
+<li><p>在脚本中我们使用了<code>Date.now = () =&gt; t;</code>，它并不接收你传进去的字符串，而是调用系统接口获取当前毫秒数。当wasm拿到这个数字之后，它会用它自带的转换逻辑去生成JSON里面的时间字段。既然WASM在你的电脑上运行和在服务器上运行的是同一个文件，那么他生成的时间格式的逻辑（比如有没有小数点，是不是13位）就一定是一模一样的。</p>
+</li>
+<li><p><strong><code>JSON.parse(...)</code></strong>：把这一串文本拆解回了 JavaScript 的“纯数据对象”。在对象状态下，<strong>格式是不存在的</strong>，只有键值对。</p>
+<p><strong><code>JSON.stringify(...)</code></strong>：把你拆解出来的“纯数据”重新按照 Node.js 的标准打包。</p>
+</li>
+</ol>
+<p>好长时间没写blog了，期末考试结束了，我终于可以再次拿起键盘了hhhh</p>
+]]></content>
+      <tags>
+        <tag>wasm</tag>
+        <tag>reverse</tag>
       </tags>
   </entry>
 </search>

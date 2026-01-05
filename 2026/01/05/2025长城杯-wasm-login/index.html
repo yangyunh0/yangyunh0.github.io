@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 8.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="wasm-login长城杯逆向题目-wasm-login">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2025长城杯 wasm-login">
+<meta property="og:url" content="http://example.com/2026/01/05/2025%E9%95%BF%E5%9F%8E%E6%9D%AF-wasm-login/index.html">
+<meta property="og:site_name" content="yangyunhui">
+<meta property="og:description" content="wasm-login长城杯逆向题目-wasm-login">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/01/05/2025%E9%95%BF%E5%9F%8E%E6%9D%AF-wasm-login/1.png">
+<meta property="og:image" content="http://example.com/2026/01/05/2025%E9%95%BF%E5%9F%8E%E6%9D%AF-wasm-login/2.png">
+<meta property="article:published_time" content="2026-01-05T07:21:43.000Z">
+<meta property="article:modified_time" content="2026-01-05T07:36:50.239Z">
+<meta property="article:author" content="yangyunhui">
+<meta property="article:tag" content="reverse">
+<meta property="article:tag" content="wasm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/01/05/2025%E9%95%BF%E5%9F%8E%E6%9D%AF-wasm-login/1.png">
+
+<link rel="canonical" href="http://example.com/2026/01/05/2025%E9%95%BF%E5%9F%8E%E6%9D%AF-wasm-login/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>2025长城杯 wasm-login | yangyunhui</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangyunhui</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">功不唐捐，玉汝于成</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2026/01/05/2025%E9%95%BF%E5%9F%8E%E6%9D%AF-wasm-login/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/tx.jpg">
+      <meta itemprop="name" content="yangyunhui">
+      <meta itemprop="description" content="前踪杳杳，后途昭昭">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangyunhui">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          2025长城杯 wasm-login
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-01-05 15:21:43 / 修改时间：15:36:50" itemprop="dateCreated datePublished" datetime="2026-01-05T15:21:43+08:00">2026-01-05</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>8 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="wasm-login"><a href="#wasm-login" class="headerlink" title="wasm-login"></a>wasm-login</h2><h4 id="长城杯逆向题目-wasm-login"><a href="#长城杯逆向题目-wasm-login" class="headerlink" title="长城杯逆向题目-wasm-login"></a><a href="">长城杯逆向题目-wasm-login</a></h4><span id="more"></span>
+
+<h4 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h4><ul>
+<li><a href="#1">刚开始写题的想法</a></li>
+<li><a href="2">题解</a></li>
+<li><a href="3">总结与反思</a></li>
+<li><a href="4">相关知识点</a></li>
+</ul>
+<hr>
+<h4 id="刚开始写题的想法"><a href="#刚开始写题的想法" class="headerlink" title="刚开始写题的想法"></a><a href="1">刚开始写题的想法</a></h4><p>​	刚开始写题的时候，就面临一个问题：当我打开<code>Index.html</code>的时候是直接双击打开，我根本不知道<code>file协议</code>，我也不知道当我们看见有<code>fetch</code>的时候是不能用<code>file</code>的，所以当我输入用户名和密码的时候既没有错误报错和正确提示，我感到很疑惑，为什么html代码里明明就有关于这部分的代码，但是我却触发不了。我就去问gemini，是因为我们是需要用http协议的（具体在<a href="4">相关知识点</a>中说），后来我就在终端中<code>python -m http.sever 8000</code>，然后在浏览器中打开<code>http://localhost:8000</code>。这是我遇见的第一个问题。</p>
+<p>​	第二个问题就是，我发现wasm文件是二进制文件，我在想要不要反编译它，虽然我最后还是反编译了，但是说实话，代码挺混乱的（<code>wasm2c release.wasm -o release.c</code>这里你也可以反编译成wat代码），很长很乱，我根本不知道怎么看</p>
+<p>​	第三个问题，到最后我知道是进行时间戳爆破，判断MD5值的开头是否和<code>ccaf33e3512e31f3</code>一样，但是这个时间格式是什么？？？因为一个空格一个横线都会导致MD5的值不同，那我们使用什么格式呢？？？</p>
+<h4 id="题解"><a href="#题解" class="headerlink" title="题解"></a><a href="2">题解</a></h4><p><strong>题目</strong> 是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">某人本想在2025年12月第三个周末爆肝一个web安全登录demo，结果不仅搞到周一凌晨，他自己还忘了成功登录时的时间戳了，你能帮他找回来吗？提交格式为flag&#123;时间戳正确时的check值&#125;。是一个大括号内为一个32位长的小写十六进制字符串。</span><br></pre></td></tr></table></figure>
+
+<p>我们先看看题目给我们的附件</p>
+<img src="/2026/01/05/2025%E9%95%BF%E5%9F%8E%E6%9D%AF-wasm-login/1.png" class="" title="This is an example image">
+
+<p>看到这里的时候我们就知道它可能是一个Js逆向</p>
+<p>我们将这个网页打开，注意不能直接点开html文件（直接打开用的是file协议），这里我们要用http协议。</p>
+<p>我们使用</p>
+<ol>
+<li>python -m http.server 8000</li>
+<li>在浏览器中访问url:<code>http://localhost:8000</code></li>
+</ol>
+<p>这是正确打开网页的方式，打开网页之后我们可以看到这是一个登录页面，我们可以看看它的源代码</p>
+<p>在代码的最后一行有</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 测试账号 admin 测试密码 admin--&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>说明我们的账号和密码都是<code>admin</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">simulateServerRequest</span>(<span class="params">data</span>) &#123;</span><br><span class="line">          <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function"><span class="params">resolve</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="comment">// 模拟网络延迟</span></span><br><span class="line">            <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">              <span class="comment">// 实际应用中这里应该是真实的 API 请求</span></span><br><span class="line">              <span class="comment">// 这里仅作演示，使用本地判断</span></span><br><span class="line">              <span class="keyword">const</span> check = <span class="title class_">CryptoJS</span>.<span class="title class_">MD5</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(data)).<span class="title function_">toString</span>(<span class="title class_">CryptoJS</span>.<span class="property">enc</span>.<span class="property">Hex</span>);</span><br><span class="line">              <span class="keyword">if</span> (check.<span class="title function_">startsWith</span>(<span class="string">&quot;ccaf33e3512e31f3&quot;</span>))&#123;</span><br><span class="line">                <span class="title function_">resolve</span>(&#123; <span class="attr">success</span>: <span class="literal">true</span> &#125;);</span><br><span class="line">              &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="title function_">resolve</span>(&#123; <span class="attr">success</span>: <span class="literal">false</span> &#125;);</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;, <span class="number">1000</span>);</span><br><span class="line">          &#125;);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>最重要的是<code> CryptoJS.MD5(JSON.stringify(data)).toString(CryptoJS.enc.Hex);</code>我们逐步分析</p>
+<ul>
+<li><code>JSON.stringify(data)</code>，将data(wasm返回的对象)转化成标准json字符串，因为md5只能处理字符串或二进制数据，不能直接处理js对象</li>
+<li><code>CryptoJS.MD5(...)</code>，对上一步得到的字符串进行MD5哈希运算</li>
+<li><code>.toString(CryptoJS.enc.Hex)</code>将加密后的数据转化成16进制字符串</li>
+</ul>
+<p>得到该16进制字符串后，将它的开头和<code>ccaf33e3512e31f3</code>进行对比，如果一致则success</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 调用 WASM 中的 authenticate 函数</span></span><br><span class="line"><span class="keyword">const</span> authResult = <span class="title function_">authenticate</span>(username, password);</span><br><span class="line"><span class="keyword">const</span> authData = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(authResult);</span><br></pre></td></tr></table></figure>
+
+<p>我们需要查看wasm文件的内容，但是因为它是二进制编码，所以我们将它反编译成可读的wat文件，有很多方法，这里我说两种</p>
+<ol>
+<li>使用<a target="_blank" rel="noopener" href="https://webassembly.github.io/wabt/demo/wasm2wat/">在线网站</a></li>
+<li>使用<code>wasm2wat</code>进行反编译</li>
+</ol>
+<p>我们可以看到</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(import &quot;env&quot; &quot;abort&quot; (func $env.abort (type $t6)))(import &quot;env&quot; &quot;Date.now&quot; (func $env.Date.now (type $t9)))</span><br></pre></td></tr></table></figure>
+
+<p>它调用了Date.now()</p>
+<p>可以猜测，authenticate 函数结合用户名，密码，时间戳参数进行签名计算</p>
+<p>我们修改<code>Date.now()</code>函数为我们自定义函数，对时间戳进行重放爆破，然后将authenticate 函数作为黑盒调用，寻找目标签名值。</p>
+<p>完整exp</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; createHash &#125; <span class="keyword">from</span><span class="string">&quot;node:crypto&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; authenticate &#125; <span class="keyword">from</span><span class="string">&quot;./build/release.js&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> P = <span class="string">&quot;ccaf33e3512e31f3&quot;</span>;</span><br><span class="line"><span class="keyword">const</span> u = <span class="string">&quot;admin&quot;</span>, p = <span class="string">&quot;admin&quot;</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="title function_">T</span> = (<span class="params">x</span>) =&gt; (<span class="regexp">/^\d+$/</span>.<span class="title function_">test</span>(x) ? +x : <span class="keyword">new</span> <span class="title class_">Date</span>(x).<span class="title function_">getTime</span>());</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> s = <span class="title function_">T</span>(process.<span class="property">argv</span>[<span class="number">2</span>] ?? <span class="string">&quot;2025-12-22T00:00:00+08:00&quot;</span>);</span><br><span class="line"><span class="keyword">const</span> e = <span class="title function_">T</span>(process.<span class="property">argv</span>[<span class="number">3</span>] ?? <span class="string">&quot;2025-12-22T06:10:00+08:00&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> t = s; t &lt;= e; t++) &#123;</span><br><span class="line"><span class="title class_">Date</span>.<span class="property">now</span> = <span class="function">() =&gt;</span> t;</span><br><span class="line"><span class="keyword">const</span> j = <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(<span class="title class_">JSON</span>.<span class="title function_">parse</span>(<span class="title function_">authenticate</span>(u, p)));</span><br><span class="line"><span class="keyword">const</span> h = <span class="title function_">createHash</span>(<span class="string">&quot;md5&quot;</span>).<span class="title function_">update</span>(j).<span class="title function_">digest</span>(<span class="string">&quot;hex&quot;</span>);</span><br><span class="line"><span class="keyword">if</span> (h.<span class="title function_">startsWith</span>(P)) &#123; </span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;命中时间戳:&quot;</span>, t); </span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;对应时间:&quot;</span>, <span class="keyword">new</span> <span class="title class_">Date</span>(t).<span class="title function_">toString</span>());</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;最终结果:&quot;</span>, h); </span><br><span class="line">    <span class="keyword">break</span>; </span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键</strong></p>
+<ol>
+<li><p><code>Date.now = () =&gt; t;</code></p>
+<p>我们强行修改了全局的<code>Date.now()</code>函数</p>
+<p>WASM内部会调用<code>Date.now()</code>来获取当前时间戳，通过这一行，让WASM每运行一次都以为“现在”就是我们指定的那个毫秒，这就是重放爆破</p>
+</li>
+<li><p><code>const j = JSON.stringify(JSON.parse(authenticate(u, p)));</code></p>
+<p><strong>步骤</strong>：</p>
+<ol>
+<li><code>authenticate(u, p)</code>：让 WASM 按照我们伪造的时间 <code>t</code> 算出一串结果。</li>
+<li><code>JSON.parse(...)</code>：把结果变回对象。</li>
+<li><code>JSON.stringify(...)</code>：再变回标准的 JSON 字符串。</li>
+</ol>
+<p><strong>为什么这样写</strong>：这叫**“标准化”**。为了防止 WASM 返回的字符串里多一个空格、少一个换行导致 MD5 匹配失败。我们必须保证字符串格式和服务器（网页）校验时完全一致。</p>
+</li>
+</ol>
+<p>我们在终端运行脚本</p>
+<img src="/2026/01/05/2025%E9%95%BF%E5%9F%8E%E6%9D%AF-wasm-login/2.png" class="" title="This is an example image">
+
+<p>得到结果：<code>flag&#123;ccaf33e3512e31f36228f0b97ccbc8f1&#125;</code></p>
+<h4 id="总结与反思"><a href="#总结与反思" class="headerlink" title="总结与反思"></a><a href="3">总结与反思</a></h4><p>做题的时候，有几个问题需要改正</p>
+<ol>
+<li>在冗余的代码中没有必要弄清楚每一个细节，有时候需要合理的猜测</li>
+<li>在脚本中，我是需要爆破时间戳的，但是我一直想的是去换格式，我们是可以使用<code>JSON.stringify(JSON.parse(authenticate(u, p)));</code>,这里的<code>authenticate(u, p)</code>是一个黑盒调用，会自动生成时间戳。</li>
+<li>当我们不太清楚函数内的逻辑时，就可以进行黑盒调用</li>
+</ol>
+<h4 id="相关知识点"><a href="#相关知识点" class="headerlink" title="相关知识点"></a><a href="4">相关知识点</a></h4><h4 id="file协议与Http协议的区别"><a href="#file协议与Http协议的区别" class="headerlink" title="file协议与Http协议的区别"></a>file协议与Http协议的区别</h4><p>file协议主要用于本地计算机中的文件，好比通过资源管理器打开文件一样，它主要是针对本地的，即file协议是访问本地的资源，并且file协议无法实现跨域。</p>
+<p>http访问本地的html文件，相当于本机作为一台http服务器，然后通过localhost访问自己电脑上的本地服务器。</p>
+<p><strong>file只是请求了本地文件，将其作为静态文件打开，而http是在本地搭建了一个服务器再通过服务器去动态解析拿到文件</strong></p>
+<p><strong>但是在这道题中我们为什么知道这是用http协议打开的而不是使用file协议</strong>，主要原因如下：</p>
+<p>本道题涉及wasm，必须使用http协议（启动一个本地服务器）</p>
+<ol>
+<li><p><strong>跨域安全限制</strong></p>
+<p>WebAssembly文件(.wasm)不能像图片那样直接加载，需要通过JavaScript的<code>fetch()</code>或者<code>WebAssembly.instantiateStreaming()</code>接口来获取数据</p>
+<ul>
+<li>**file协议：**浏览器出于安全考虑，严格限制<code>file://</code>协议下的脚本去读取本地文件系统中的其他文件。浏览器会认为这是”跨域请求”，从而拦截掉加载<code>.wasm</code>的行为。</li>
+<li>**http协议：**浏览器允许在同一域名（如localhost）下下载相关资源，这符合当代浏览器的安全模型。</li>
+</ul>
+<p>这道题代码内部使用了fetch，并且我们还需要AssemblyScript的标准加载器来获取<code>release.wasm</code></p>
+<ol>
+<li>如果使用file协议，在控制台（F12）会报错，提示无法加载<code>wasm</code>文件</li>
+<li>如果使用http协议，所有文件都在服务器语境下，浏览器能正确获取文件，校验类型并运行逻辑</li>
+</ol>
+</li>
+</ol>
+<p>如果我们想快速开启<code>http</code>环境，可以在代码所在文件夹打开终端输入：</p>
+<ul>
+<li><strong>Python3：</strong><code>python -m http.server 8000</code></li>
+</ul>
+<h4 id="为什么这个exp可以不用考虑时间的格式？"><a href="#为什么这个exp可以不用考虑时间的格式？" class="headerlink" title="为什么这个exp可以不用考虑时间的格式？"></a>为什么这个exp可以不用考虑时间的格式？</h4><p>我们使用“黑盒”，之所以不需要知道时间的格式，是因为在这个过程中，没有去手动”写”时间字符串，而是通过劫持系统函数，让程序自发地生成了正确的格式。</p>
+<ol>
+<li><p>在脚本中我们使用了<code>Date.now = () =&gt; t;</code>，它并不接收你传进去的字符串，而是调用系统接口获取当前毫秒数。当wasm拿到这个数字之后，它会用它自带的转换逻辑去生成JSON里面的时间字段。既然WASM在你的电脑上运行和在服务器上运行的是同一个文件，那么他生成的时间格式的逻辑（比如有没有小数点，是不是13位）就一定是一模一样的。</p>
+</li>
+<li><p><strong><code>JSON.parse(...)</code></strong>：把这一串文本拆解回了 JavaScript 的“纯数据对象”。在对象状态下，<strong>格式是不存在的</strong>，只有键值对。</p>
+<p><strong><code>JSON.stringify(...)</code></strong>：把你拆解出来的“纯数据”重新按照 Node.js 的标准打包。</p>
+</li>
+</ol>
+<p>好长时间没写blog了，期末考试结束了，我终于可以再次拿起键盘了hhhh</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/wasm/" rel="tag"># wasm</a>
+              <a href="/tags/reverse/" rel="tag"># reverse</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/11/29/ctfshow-pwn%E5%85%A5%E9%97%A8-pwn74/" rel="prev" title="ctfshow pwn入门 pwn74">
+      <i class="fa fa-chevron-left"></i> ctfshow pwn入门 pwn74
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#wasm-login"><span class="nav-number">1.</span> <span class="nav-text">wasm-login</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%95%BF%E5%9F%8E%E6%9D%AF%E9%80%86%E5%90%91%E9%A2%98%E7%9B%AE-wasm-login"><span class="nav-number">1.1.</span> <span class="nav-text">长城杯逆向题目-wasm-login</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">1.2.</span> <span class="nav-text">目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9A%E5%BC%80%E5%A7%8B%E5%86%99%E9%A2%98%E7%9A%84%E6%83%B3%E6%B3%95"><span class="nav-number">1.3.</span> <span class="nav-text">刚开始写题的想法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%98%E8%A7%A3"><span class="nav-number">1.4.</span> <span class="nav-text">题解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93%E4%B8%8E%E5%8F%8D%E6%80%9D"><span class="nav-number">1.5.</span> <span class="nav-text">总结与反思</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="nav-number">1.6.</span> <span class="nav-text">相关知识点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#file%E5%8D%8F%E8%AE%AE%E4%B8%8EHttp%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">1.7.</span> <span class="nav-text">file协议与Http协议的区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B8%AAexp%E5%8F%AF%E4%BB%A5%E4%B8%8D%E7%94%A8%E8%80%83%E8%99%91%E6%97%B6%E9%97%B4%E7%9A%84%E6%A0%BC%E5%BC%8F%EF%BC%9F"><span class="nav-number">1.8.</span> <span class="nav-text">为什么这个exp可以不用考虑时间的格式？</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="yangyunhui"
+      src="/images/tx.jpg">
+  <p class="site-author-name" itemprop="name">yangyunhui</p>
+  <div class="site-description" itemprop="description">前踪杳杳，后途昭昭</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://blog.csdn.net/yyh3155518319?spm=1000.2115.3001.5343" title="https:&#x2F;&#x2F;blog.csdn.net&#x2F;yyh3155518319?spm&#x3D;1000.2115.3001.5343" rel="noopener" target="_blank">CSDN</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yangyunhui</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">32k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">58 分钟</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+ 
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
