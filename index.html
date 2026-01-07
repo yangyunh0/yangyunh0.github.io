@@ -210,7 +210,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2026-01-07 20:12:57 / 修改时间：20:19:57" itemprop="dateCreated datePublished" datetime="2026-01-07T20:12:57+08:00">2026-01-07</time>
+              <time title="创建时间：2026-01-07 20:12:57 / 修改时间：20:22:21" itemprop="dateCreated datePublished" datetime="2026-01-07T20:12:57+08:00">2026-01-07</time>
             </span>
 
           <br>
@@ -239,105 +239,14 @@
 
       
           <h2 id="2025金盾信安杯-lower"><a href="#2025金盾信安杯-lower" class="headerlink" title="2025金盾信安杯 lower"></a>2025金盾信安杯 lower</h2><p><a href="">2025金盾信安杯 逆向题目lower</a></p>
-<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
-<li><a href="#1">题目分析及截图</a></li>
-<li><a href="#2">相关知识点</a></li>
-</ul>
-<hr>
-<h4 id="题目分析及截图"><a href="#题目分析及截图" class="headerlink" title="题目分析及截图"></a><a href="#1">题目分析及截图</a></h4><p>这道题代码不是很长，并且需要你动态调试+静态分析才能解出这道题。</p>
-<p>那么我们依旧先查壳</p>
-<img src="/2026/01/07/2025%E9%87%91%E7%9B%BE%E4%BF%A1%E5%AE%89%E6%9D%AF-%E9%80%86%E5%90%91%E9%A2%98%E7%9B%AElower/1.png" class="" title="This is an image">
-
-<p>可以看到我们不需要进行脱壳，并且这是一个64位elf文件</p>
-<p>我们使用ida打开该文件</p>
-<ol>
-<li><p><strong>Main</strong> 函数：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> __fastcall <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">const</span> <span class="type">char</span> **argv, <span class="type">const</span> <span class="type">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  __int64 v3; <span class="comment">// rax</span></span><br><span class="line">  __int64 v4; <span class="comment">// rcx</span></span><br><span class="line">  <span class="type">unsigned</span> __int64 v5; <span class="comment">// rdx</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> v6; <span class="comment">// ebp</span></span><br><span class="line">  <span class="type">int</span> v7; <span class="comment">// eax</span></span><br><span class="line">  <span class="type">bool</span> v8; <span class="comment">// zf</span></span><br><span class="line">  __int64 (__fastcall *v9)(); <span class="comment">// rax</span></span><br><span class="line">  __int64 (__fastcall *v10)(); <span class="comment">// rdx</span></span><br><span class="line">  _BYTE v12[<span class="number">80</span>]; <span class="comment">// [rsp+0h] [rbp-178h] BYREF</span></span><br><span class="line">  <span class="type">char</span> s[<span class="number">264</span>]; <span class="comment">// [rsp+50h] [rbp-128h] BYREF</span></span><br><span class="line">  <span class="type">unsigned</span> __int64 v14; <span class="comment">// [rsp+158h] [rbp-20h]</span></span><br><span class="line"></span><br><span class="line">  v14 = __readfsqword(<span class="number">0x28u</span>);</span><br><span class="line">  <span class="keyword">if</span> ( <span class="built_in">fgets</span>(s, <span class="number">256</span>, stdin) )</span><br><span class="line">  &#123;</span><br><span class="line">    v3 = <span class="number">0LL</span>;</span><br><span class="line">    v4 = <span class="number">-9218LL</span>;</span><br><span class="line">    <span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      v5 = (<span class="type">unsigned</span> __int8)s[v3];</span><br><span class="line">      v6 = v3;</span><br><span class="line">      <span class="keyword">if</span> ( (<span class="type">unsigned</span> __int8)v5 &lt;= <span class="number">0xDu</span> &amp;&amp; !_bittest64(&amp;v4, v5) )</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">if</span> ( ++v3 == <span class="number">256</span> )</span><br><span class="line">      &#123;</span><br><span class="line">        v6 = <span class="number">256</span>;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    v7 = <span class="built_in">derive_vm_seed</span>();</span><br><span class="line">    v8 = (((<span class="type">unsigned</span> __int8)(((v6 ^ v7 ^ <span class="number">0xCAFEBABE</span>) &gt;&gt; <span class="number">11</span>) ^ ((v6 ^ v7 ^ <span class="number">0xCAFEBABE</span>) &gt;&gt; <span class="number">5</span>)) ^ (<span class="type">unsigned</span> __int8)(v6 ^ v7) ^ <span class="number">0xBE</span>) &amp; <span class="number">1</span>) == <span class="number">0</span>;</span><br><span class="line">    v9 = check_len_alt_impl;</span><br><span class="line">    <span class="keyword">if</span> ( v8 )</span><br><span class="line">      v9 = check_len_impl;</span><br><span class="line">    v10 = run_and_verify_alt_impl;</span><br><span class="line">    <span class="keyword">if</span> ( v8 )</span><br><span class="line">      v10 = run_and_verify_impl;</span><br><span class="line">    g_check_ops = v9;</span><br><span class="line">    off_5020 = (__int64 (__fastcall *)(_QWORD, _QWORD, _QWORD))v10;</span><br><span class="line">    <span class="keyword">if</span> ( ((<span class="type">unsigned</span> <span class="built_in">int</span> (__fastcall *)(_QWORD, __int64, __int64 (__fastcall *)(), __int64 (__fastcall *)()))v9)(</span><br><span class="line">           v6,</span><br><span class="line">           <span class="number">256LL</span>,</span><br><span class="line">           v10,</span><br><span class="line">           run_and_verify_impl)</span><br><span class="line">      &amp;&amp; (<span class="built_in">off_5018</span>(v12, v6), (<span class="type">unsigned</span> <span class="type">int</span>)<span class="built_in">off_5020</span>(s, v6, v12)) )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;yes&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;no&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ol>
-<p>我们慢慢来分析这个函数</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      v5 = (<span class="type">unsigned</span> __int8)s[v3];</span><br><span class="line">      v6 = v3;</span><br><span class="line">      <span class="keyword">if</span> ( (<span class="type">unsigned</span> __int8)v5 &lt;= <span class="number">0xDu</span> &amp;&amp; !_bittest64(&amp;v4, v5) )</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">if</span> ( ++v3 == <span class="number">256</span> )</span><br><span class="line">      &#123;</span><br><span class="line">        v6 = <span class="number">256</span>;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<p>这段代码的意思就是看我们输入字符的长度</p>
-<img src="/2026/01/07/2025%E9%87%91%E7%9B%BE%E4%BF%A1%E5%AE%89%E6%9D%AF-%E9%80%86%E5%90%91%E9%A2%98%E7%9B%AElower/2.png" class="" title="This is an image">
-
-<p>但是当我们输入的时候是有报错的，说明输入可能是有某些限制的</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">_BOOL8 __fastcall <span class="title">check_len_impl</span><span class="params">(<span class="type">int</span> a1)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">return</span> a1 == <span class="number">79</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在<code>check_len_impl</code>中我们可以看到<code>return a1 == 79</code>从这个函数名我们也可以大概猜到这个函数是用来检查输入的长度是否等于79的，我们可以再试一次长度是79的输入</p>
-<img src="/2026/01/07/2025%E9%87%91%E7%9B%BE%E4%BF%A1%E5%AE%89%E6%9D%AF-%E9%80%86%E5%90%91%E9%A2%98%E7%9B%AElower/3.png" class="" title="This is an image">
-
-<p>这次是通过的（我只是为了验证输入79个字符是正确的，真正比赛不用这样，时间第一）</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( ((<span class="type">unsigned</span> <span class="built_in">int</span> (__fastcall *)(_QWORD, __int64, __int64 (__fastcall *)(), __int64 (__fastcall *)()))v9)(</span><br><span class="line">           v6,</span><br><span class="line">           <span class="number">256LL</span>,</span><br><span class="line">           v10,</span><br><span class="line">           run_and_verify_impl)</span><br><span class="line">      &amp;&amp; (<span class="built_in">off_5018</span>(v12, v6), (<span class="type">unsigned</span> <span class="type">int</span>)<span class="built_in">off_5020</span>(s, v6, v12)) )</span><br></pre></td></tr></table></figure>
-
-<p>这个if判断是非常重要的，就是验证你的输入长度是否等于79，加密后是否等于密文</p>
-<p>我们跟进<code>run_and_verify_impl</code>函数看看</p>
-<p>但是我们进去之后没有什么有用的信息，我们继续跟进，还是没有什么有用的函数，继续跟进，发现<code>run_vm_inner</code>函数</p>
-<p>使用动态调试得到加密后的数组</p>
-<p>具体调试步骤</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gdb ./lower</span><br><span class="line">b run_vm_inner</span><br><span class="line">x/80xb $rdx</span><br></pre></td></tr></table></figure>
-
-<img src="/2026/01/07/2025%E9%87%91%E7%9B%BE%E4%BF%A1%E5%AE%89%E6%9D%AF-%E9%80%86%E5%90%91%E9%A2%98%E7%9B%AElower/4.png" class="" title="This is an image">
-
-<p>它就是我们flag加密后的进行比对的值，接下来我们需要去明白它的加密逻辑</p>
-<p>这个在程序中看不到，嗯…比较烦人</p>
-<p>我们跟进函数<code>run_ir</code></p>
-<img src="/2026/01/07/2025%E9%87%91%E7%9B%BE%E4%BF%A1%E5%AE%89%E6%9D%AF-%E9%80%86%E5%90%91%E9%A2%98%E7%9B%AElower/5.png" class="" title="This is an image">
-
-<p>其实大概率就是进行异或操作了，但是我不知道v13[1]是什么值，动调一下看看呢</p>
-<p>动调步骤：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gdb ./lower</span><br><span class="line">b run_ir</span><br><span class="line">r</span><br></pre></td></tr></table></figure>
-
-<p>在STACK中，我们可以看到一行</p>
-<p><code>04:0020│-148   0x7fffffffd6e8 ◂— 0x4000003001aa2000</code></p>
-<p>因为是小端序（你可能想问为什么？）</p>
-<img src="/2026/01/07/2025%E9%87%91%E7%9B%BE%E4%BF%A1%E5%AE%89%E6%9D%AF-%E9%80%86%E5%90%91%E9%A2%98%E7%9B%AElower/6.png" class="" title="This is an image">
-
-<p>在<code>0x4000003001aa2000</code>中，我们将每两个字符拆开</p>
-<p>我们可以和<code>v7 ^= v13[1];</code>上下进行对比，我们倒着看这些数字（因为是小端序）</p>
-<ul>
-<li><code>0x20：</code>这是XOR的操作码</li>
-<li>那么<code>0xAA</code>代表的就是异或的这个值</li>
-</ul>
-<p><strong>这个涉及操作码（Opcode），可以去看看</strong></p>
-<p>可能有更好的办法，但是我不太懂，欢迎来找我讨论</p>
-<p>我们的exp如下所示：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">data = [</span><br><span class="line">    <span class="number">0xcc</span>, <span class="number">0xc6</span>, <span class="number">0xcb</span>, <span class="number">0xcd</span>, <span class="number">0xd1</span>, <span class="number">0x9d</span>, <span class="number">0xcf</span>, <span class="number">0x9e</span>,</span><br><span class="line">    <span class="number">0x92</span>, <span class="number">0xcb</span>, <span class="number">0x9c</span>, <span class="number">0xc9</span>, <span class="number">0xcb</span>, <span class="number">0x87</span>, <span class="number">0xce</span>, <span class="number">0xcc</span>,</span><br><span class="line">    <span class="number">0xcb</span>, <span class="number">0x98</span>, <span class="number">0x87</span>, <span class="number">0x9b</span>, <span class="number">0x9b</span>, <span class="number">0xcc</span>, <span class="number">0x9a</span>, <span class="number">0x87</span>,</span><br><span class="line">    <span class="number">0x93</span>, <span class="number">0xc9</span>, <span class="number">0x98</span>, <span class="number">0x98</span>, <span class="number">0x87</span>, <span class="number">0x99</span>, <span class="number">0x9a</span>, <span class="number">0x9a</span>,</span><br><span class="line">    <span class="number">0x9f</span>, <span class="number">0x9a</span>, <span class="number">0x9f</span>, <span class="number">0x9d</span>, <span class="number">0x9f</span>, <span class="number">0x9c</span>, <span class="number">0x9b</span>, <span class="number">0x98</span>,</span><br><span class="line">    <span class="number">0xce</span>, <span class="number">0x87</span>, <span class="number">0x92</span>, <span class="number">0xcf</span>, <span class="number">0x9c</span>, <span class="number">0xcb</span>, <span class="number">0x9e</span>, <span class="number">0x9a</span>,</span><br><span class="line">    <span class="number">0x92</span>, <span class="number">0xc8</span>, <span class="number">0x87</span>, <span class="number">0xce</span>, <span class="number">0xcc</span>, <span class="number">0xcb</span>, <span class="number">0x98</span>, <span class="number">0x87</span>,</span><br><span class="line">    <span class="number">0x9b</span>, <span class="number">0x9b</span>, <span class="number">0xcc</span>, <span class="number">0x9a</span>, <span class="number">0x87</span>, <span class="number">0x92</span>, <span class="number">0xc9</span>, <span class="number">0x9b</span>,</span><br><span class="line">    <span class="number">0x99</span>, <span class="number">0x87</span>, <span class="number">0x99</span>, <span class="number">0x9a</span>, <span class="number">0x9a</span>, <span class="number">0x9f</span>, <span class="number">0x9a</span>, <span class="number">0x9f</span>,</span><br><span class="line">    <span class="number">0x9d</span>, <span class="number">0x9f</span>, <span class="number">0x9c</span>, <span class="number">0x9b</span>, <span class="number">0x98</span>, <span class="number">0xce</span>, <span class="number">0xd7</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">flag = <span class="string">&quot;&quot;</span>.join([<span class="built_in">chr</span>(b ^ <span class="number">0xAA</span>) <span class="keyword">for</span> b <span class="keyword">in</span> data])</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;解密出的字符串: <span class="subst">&#123;flag&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<p>结果如下：<code>flag&#123;7e48a6ca-dfa2-11f0-9c22-30050575612d-8e6a408b-dfa2-11f0-8c13-30050575612d&#125;</code></p>
-<h4 id="相关知识点"><a href="#相关知识点" class="headerlink" title="相关知识点"></a><a href="#2">相关知识点</a></h4><p><strong>操作码（Opcode）</strong>：</p>
-<ol>
-<li><p>什么是操作码？？</p>
-<p><strong>操作码</strong> 是指令中规定“执行什么操作”的部分。它像是一个开关，决定了CPU接下来要走那条电路逻辑</p>
-<ul>
-<li>**它的本质：**只是一个数字。</li>
-<li><strong>他的意义：</strong> 由程序中的<code>if else</code>或者<code>switch</code>分支赋予</li>
-<li><strong>操作数（Operand）：</strong> 紧跟在操作码后面的数据（比如我们异或操作的<code>v13[1]</code>）</li>
-</ul>
-</li>
-<li><p>怎么在程序中找到操作码？</p>
-<p>找到一个自定义VM的操作码的映射关系，通常遵循 <strong>取指 -&gt; 分发 -&gt; 逻辑</strong> 的寻找路径。</p>
-<p><strong>取指</strong></p>
-<ul>
-<li>程序每三个字节取一次指令</li>
-<li>每组字节的第一个字节是操作码</li>
-</ul>
-<p><strong>分发</strong></p>
-<p>在代码中，作者使用了大量<code>if-else</code>分支</p>
-<ul>
-<li><code>if (v14==17)</code></li>
-<li><code>else if (v4 == 1)</code></li>
-<li><code>else if (v4 == 32)</code></li>
-<li><code>else if (v14 == 48)</code></li>
-</ul>
-<p>这些数字就是操作码</p>
-</li>
-<li><p>确定操作码的功能</p>
-<ul>
-<li>32（10进制），20（16进制），在代码中<code>v7 ^= v13[1]</code>，说明这个操作码的含义就是异或（XOR）</li>
-</ul>
-</li>
-</ol>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/01/07/2025%E9%87%91%E7%9B%BE%E4%BF%A1%E5%AE%89%E6%9D%AF-%E9%80%86%E5%90%91%E9%A2%98%E7%9B%AElower/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
