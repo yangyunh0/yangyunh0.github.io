@@ -1064,7 +1064,9 @@
   <entry>
     <title>Android逆向学习笔记(一)</title>
     <url>/2026/01/08/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%80)/</url>
-    <content><![CDATA[<h2 id="安卓逆向学习笔记（一）"><a href="#安卓逆向学习笔记（一）" class="headerlink" title="安卓逆向学习笔记（一）"></a>安卓逆向学习笔记（一）</h2><p>[安卓逆向第一课](<a href="https://www.52pojie.cn/thread-648530-1-1.html">《教我兄弟学Android逆向01 编写第一个Android程序》 - 吾爱破解 - 52pojie.cn</a>)</p>
+    <content><![CDATA[<h2 id="安卓逆向学习笔记（一）"><a href="#安卓逆向学习笔记（一）" class="headerlink" title="安卓逆向学习笔记（一）"></a>安卓逆向学习笔记（一）</h2><p><a href="https://www.52pojie.cn/thread-648530-1-1.html">安卓逆向第一课</a></p>
+<span id="more"></span>
+
 <h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
 <li><a href="#1">学习过程</a></li>
 <li><a href="#2">课后作业</a></li>
@@ -1072,8 +1074,8 @@
 </ul>
 <hr>
 <h4 id="学习过程"><a href="#学习过程" class="headerlink" title="学习过程"></a><a href="#1">学习过程</a></h4><p>第一课，老师是教我们写一个Android程序，这是一个很简单的登录界面。</p>
-<p>我们首先下载需要使用的软件[Android Studio](<a href="https://developer.android.com/studio?hl=zh-cn">下载 Android Studio 和应用工具 - Android 开发者  | Android Developers</a>)</p>
-<p>下载按照[教程](<a href="https://blog.csdn.net/2503_91826368/article/details/147528584">2025最新Android studio保姆级安装教程(超详细) 附安装包_android studio安装教程-CSDN博客</a>)一步一步将AS安装好。</p>
+<p>我们首先下载需要使用的软件<a href="https://developer.android.com/studio?hl=zh-cn">Android Studio</a></p>
+<p>下载按照<a href="https://blog.csdn.net/2503_91826368/article/details/147528584">教程</a>一步一步将AS安装好。</p>
 <p>下载好之后，因为我没有接触过这个软件也没有玩过开发，所以刚刚开始的时候有点不知道怎么用这个软件。</p>
 <p>但是没关系。学逆向的人内心是应该有这些准备的。</p>
 <img src="/2026/01/08/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%80)/1.png" class="" title="This is an example image">
