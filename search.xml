@@ -1208,15 +1208,18 @@
 <p>我们用最简单的办法吧（一天都花费在了怎么绕过签名上，最后问大佬才知道orz）</p>
 <ol>
 <li><p>使用<code>apktool</code>将文件解包。（我的apk文件路径是<code>E:\liulanqi\rollsky\rollsky.apk</code>）</p>
-<p><strong>解包命令：</strong> <code>apktool d &quot;E:\liulanqi\rollsky\rollsky.apk&quot; -o &quot;E:\liulanqi\rollsky\rollsky_decoded&quot;</code></p>
+<p><strong>解包命令：</strong> </p>
+<p><code>apktool d &quot;E:\liulanqi\rollsky\rollsky.apk&quot; -o &quot;E:\liulanqi\rollsky\rollsky_decoded&quot;</code></p>
 </li>
 <li><p>删除签名，进入<code>rollsky_decoded</code>的目录，删除<code>META-INF</code>文件夹。</p>
 </li>
 <li><p>重新打包。</p>
-<p><strong>打包命令：</strong> <code>apktool b &quot;E:\liulanqi\rollsky\rollsky_decoded&quot; -o &quot;E:\liulanqi\rollsky\rollsky-unsigned.apk&quot;</code> </p>
+<p><strong>打包命令：</strong> </p>
+<p><code>apktool b &quot;E:\liulanqi\rollsky\rollsky_decoded&quot; -o &quot;E:\liulanqi\rollsky\rollsky-unsigned.apk&quot;</code> </p>
 </li>
 <li><p>加签名。（我的签名路径是<code>D:\Key.store</code>）</p>
-<p><strong>加签名命令：</strong> <code>apksigner sign --ks &quot;D:\Key.store&quot; --ks-key-alias &quot;key0&quot; --out &quot;E:\liulanqi\rollsky\rollsky-signed.apk&quot; &quot;E:\liulanqi\rollsky\rollsky-unsigned.apk&quot;</code></p>
+<p><strong>加签名命令：</strong> </p>
+<p><code>apksigner sign --ks &quot;D:\Key.store&quot; --ks-key-alias &quot;key0&quot; --out &quot;E:\liulanqi\rollsky\rollsky-signed.apk&quot; &quot;E:\liulanqi\rollsky\rollsky-unsigned.apk&quot;</code></p>
 <ul>
 <li>Key0是我签名的别名</li>
 <li><code>apksighner</code>是AndroidSkiller中的工具，进入这个工具目录使用该命令即可。</li>
