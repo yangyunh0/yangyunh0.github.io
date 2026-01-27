@@ -1245,4 +1245,89 @@
         <tag>Android逆向</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Android逆向学习笔记(三)</title>
+    <url>/2026/01/27/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%89)/</url>
+    <content><![CDATA[<h2 id="安卓学习笔记-三"><a href="#安卓学习笔记-三" class="headerlink" title="安卓学习笔记(三)"></a>安卓学习笔记(三)</h2><p><a href="https://www.52pojie.cn/thread-654654-1-1.html">安卓逆向第三课</a></p>
+<span id="more"></span>
+
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li><a href="#1">切水果游戏</a><ul>
+<li><a href="#1.1">第一种方法</a></li>
+<li><a href="#1.2">第二种方法</a></li>
+<li><a href="#1.3">第三种方法</a></li>
+</ul>
+</li>
+<li><a href="#2">作业</a></li>
+</ul>
+<hr>
+<h4 id="切水果游戏"><a href="#切水果游戏" class="headerlink" title="切水果游戏"></a><a href="#1">切水果游戏</a></h4><p><strong>原apk文件：</strong> 通过网盘分享的文件：cut_fruit.apk<br>链接: <a href="https://pan.baidu.com/s/1w0AvkaUB-dHTnQgdlcGT8g">https://pan.baidu.com/s/1w0AvkaUB-dHTnQgdlcGT8g</a> 提取码: yjkb</p>
+<h5 id="第一种方法"><a href="#第一种方法" class="headerlink" title="第一种方法"></a><a href="#1.1">第一种方法</a></h5><p>我们下载好文件之后，需要考虑一个问题，也是我在笔记二中踩坑很久的问题。</p>
+<p>因为我们修改完apk之后是要根据签名去编译的，所以在开始修改文件之前，我们需要对文件进行一些操作。</p>
+<ol>
+<li>解包文件</li>
+<li>删除签名文件（<code>META-INF</code>）</li>
+<li>打包</li>
+<li>加签名</li>
+</ol>
+<p>这些在我的第二篇文章中有具体命令，但是在这里我还要说一下，如果说显示内部没有该命令，我们进行第1，3步骤时，可以这样做：</p>
+<ol>
+<li><p><strong>解包：</strong> 使用命令<code>java -jar D:\ruanjian\apktool\apktool_2.12.1.jar d &quot;D:\ruanjian\cut fruit\cut_fruit.apk&quot; -o &quot;D:\ruanjian\cut fruit\cut_fruit_d.apk&quot;</code></p>
+</li>
+<li><p><strong>打包：</strong> 使用命令<code>java -jar D:\ruanjian\apktool\apktool_2.12.1.jar b &quot;D:\ruanjian\cut fruit\cut_fruit_d.apk&quot; -o &quot;D:\ruanjian\cut fruit\cut_fruit_dns.apk&quot;</code></p>
+</li>
+<li><p><strong>加签名：</strong> 我们进入AS文件夹下的<code>D:\AndroidTools\SDK\build-tools\35.0.0</code></p>
+<p><strong>使用命令：</strong> <code>apksigner sign --ks &quot;D:\Key.store&quot; --ks-key-alias &quot;key0&quot; --out &quot;D:\ruanjian\cut fruit\cut_fruit_ds.apk&quot; &quot;D:\ruanjian\cut fruit\cut_fruit_dns.apk&quot;</code></p>
+</li>
+</ol>
+<p>这些是我们开始的前提条件，我们打开原版文件看看软件打开是什么样子的。</p>
+<img src="/2026/01/27/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%89)/1.png" class="This is an example image">
+
+<p>这是购买界面，当我们点击购买时会出现</p>
+<img src="/2026/01/27/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%89)/2.png" class="This is an example image">
+
+<p>我们可以判断在代码中可能也会有 **支付失败 ** 字段，我们将该apk文件拖入AS中进行反编译</p>
+<p>我们使用<a href="https://www.jyshare.com/front-end/3602/">在线 Unicode 编码转换 | 菜鸟工具</a>得到支付失败的unicode编码是<code>\u652f\u4ed8\u5931\u8d25</code></p>
+<p>在AS中进行搜索，发现</p>
+<img src="/2026/01/27/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%89)/3.png" class="This is an example image">
+
+<p>很奇怪，字段不是支付失败，可能是其他的？那我们直接搜失败吧</p>
+<p>失败的unicode编码是<code>\u5931\u8d25</code></p>
+<p>在AS中搜索<code>\u5931\u8d25</code></p>
+<img src="/2026/01/27/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%89)/4.png" class="This is an example image">
+
+<p>经过我一个一个检查，我发现框住部分是有用的（购买失败）。</p>
+<p>在这个函数中，有支付成功，支付失败，支付取消这三种逻辑。我们的目的就是无论是支付取消还是支付失败，都是支付成功的效果。</p>
+<p>在这个和第二篇笔记的思路一样，因为不太理解函数内部实现逻辑，所以直接将支付成功的代码，粘贴到支付取消，支付失败的函数中。</p>
+<h5 id="第二种方法"><a href="#第二种方法" class="headerlink" title="第二种方法"></a><a href="#1.2">第二种方法</a></h5><p>第二种方法是老师的方法，找到调用购买失败函数的函数，将调用的这个函数都改成购买成功的函数就可以了。</p>
+<p>我这样说可能很难理解，我们看一下代码就非常清晰了。</p>
+<p>我们先搜索购买失败这个函数，也就是<code>payResultFalse</code>函数</p>
+<img src="/2026/01/27/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%89)/5.png" class="This is an example image">
+
+<p>红框圈住的分别是三个分支：</p>
+<ol>
+<li>购买取消</li>
+<li>购买成功</li>
+<li>购买失败</li>
+</ol>
+<p>看smali代码很难理解，我们可以看看它的java源码。我的AS不知道为什么不能转换，但是没关系，我们可以使用jadx查看源码</p>
+<img src="/2026/01/27/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%89)/6.png" class="This is an example image">
+
+<p>很明显，这里老师的思路就是：无论<code>resultCode</code>是多少，我们调用的都是<code>payResultSuccess</code>函数。</p>
+<p>非常好办，直接将红框中的函数都替换 <code>payResultSuccess</code>函数：</p>
+<img src="/2026/01/27/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%89)/7.png" class="This is an example image">
+
+<p>改成这样就ok了。</p>
+<h5 id="第三种方法"><a href="#第三种方法" class="headerlink" title="第三种方法"></a><a href="#1.3">第三种方法</a></h5><p>我想到的方法是将失败函数与成功函数名进行对调，但是貌似不可以</p>
+<p><strong>看一下破解后的游戏界面</strong></p>
+<img src="/2026/01/27/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%89)/8.png" class="This is an example image">
+
+<img src="/2026/01/27/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%89)/9.png" class="This is an example image">
+
+<h4 id="作业"><a href="#作业" class="headerlink" title="作业"></a><a href="#2">作业</a></h4><p>作业的apk文件我下载的都有点问题，暂时先将这个部分跳过，有机会再写。</p>
+]]></content>
+      <tags>
+        <tag>安卓逆向</tag>
+      </tags>
+  </entry>
 </search>
