@@ -1330,4 +1330,74 @@
         <tag>安卓逆向</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Android逆向学习笔记(四)</title>
+    <url>/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/</url>
+    <content><![CDATA[<h2 id="Android逆向学习笔记-四"><a href="#Android逆向学习笔记-四" class="headerlink" title="Android逆向学习笔记(四)"></a>Android逆向学习笔记(四)</h2><p><a href="https://www.52pojie.cn/thread-1695141-1-1.html">《安卓逆向这档事》一、模拟器环境搭建</a></p>
+<span id="more"></span>
+
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li><a href="#1">搭建过程</a></li>
+<li><a href="#2">心理感受</a></li>
+</ul>
+<hr>
+<h4 id="搭建过程"><a href="#搭建过程" class="headerlink" title="搭建过程"></a><a href="#1">搭建过程</a></h4><h5 id="1-下载雷电模拟器"><a href="#1-下载雷电模拟器" class="headerlink" title="1. 下载雷电模拟器"></a>1. 下载雷电模拟器</h5><p>可以从官网下载<a href="https://www.ldmnq.com/">雷电模拟器官网_安卓模拟器_手游模拟器下载</a></p>
+<h5 id="2-更改雷电模拟器设置"><a href="#2-更改雷电模拟器设置" class="headerlink" title="2. 更改雷电模拟器设置"></a>2. 更改雷电模拟器设置</h5><img src="/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/1.png" class="" title="This is an example image">
+
+<img src="/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/2.png" class="" title="This is an example image">
+
+<img src="/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/3.png" class="" title="This is an example image">
+
+<p>保存完设置之后，重启</p>
+<h5 id="3-安装面具"><a href="#3-安装面具" class="headerlink" title="3. 安装面具"></a>3. 安装面具</h5><p>通过网盘分享的文件：app-debug.apk<br>链接: <a href="https://pan.baidu.com/s/1Y5kDgnliFIinn6fCuUXIBA">https://pan.baidu.com/s/1Y5kDgnliFIinn6fCuUXIBA</a> 提取码: ijv8</p>
+<p>将这个apk文件拖入到雷电模拟器中</p>
+<img src="/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/4.png" class="" title="This is an example image">
+
+<p>允许之后点击Magisk后面的安装</p>
+<img src="/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/5.png" class="" title="This is an example image">
+
+<p>点击允许之后</p>
+<img src="/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/6.png" class="" title="This is an example image">
+
+<p><strong>注意到这个界面之后一定要退回！！</strong></p>
+<p>退回之后再次点击进入文件</p>
+<img src="/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/7.png" class="" title="This is an example image">
+
+<img src="/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/8.png" class="" title="This is an example image">
+
+<img src="/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/9.png" class="" title="This is an example image">
+
+<p>选择之后点击开始</p>
+<img src="/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/10.png" class="" title="This is an example image">
+
+<p>出现这个界面之后就成功了，<strong>重启</strong> 雷电模拟器，我们点击面具</p>
+<img src="/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/11.png" class="" title="This is an example image">
+
+<p>点击设置</p>
+<img src="/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/12.png" class="" title="This is an example image">
+
+<img src="/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/13.png" class="" title="This is an example image">
+
+<p>通过网盘分享的文件：LSPosed-v1.9.2-7024-zygisk-release.zip<br>链接: <a href="https://pan.baidu.com/s/1kxi5IFHz37cpa1KRxYZQ9w">https://pan.baidu.com/s/1kxi5IFHz37cpa1KRxYZQ9w</a> 提取码: 3mhu</p>
+<p>打开共享文件夹之后选择电脑文件夹，将<code>LSPosed-v1.9.2-7024-zygisk-release.zip</code>放到里面</p>
+<img src="/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/14.png" class="" title="This is an example image">
+
+<img src="/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/15.png" class="" title="This is an example image">
+
+<img src="/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/16.png" class="" title="This is an example image">
+
+<img src="/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/17.png" class="" title="This is an example image">
+
+<p>点击这个模块</p>
+<img src="/2026/02/01/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%9B%9B)/18.png" class="" title="This is an example image">
+
+<p>ok</p>
+<p>我们重启雷电模拟器，打开面具之后，当我们打开模块之后显示这个模块，就安装成功了。</p>
+<h4 id="心理感受"><a href="#心理感受" class="headerlink" title="心理感受"></a><a href="#2">心理感受</a></h4><p>安装面具的时候出了一点小问题，我只打开了root权限，我并没有开读写权限，导致我一直失败，其实老师的教程里面有这个答疑，但是当时我是直接去搜的，虽然也解决了这个问题，但是如果当时仔细看老师的教程，会节省很长的时间。</p>
+<p>orz</p>
+]]></content>
+      <tags>
+        <tag>安卓逆向</tag>
+      </tags>
+  </entry>
 </search>
