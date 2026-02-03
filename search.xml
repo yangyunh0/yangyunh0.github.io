@@ -1688,4 +1688,292 @@
         <tag>安卓逆向</tag>
       </tags>
   </entry>
+  <entry>
+    <title>安卓逆向学习笔记(五)</title>
+    <url>/2026/02/03/%E5%AE%89%E5%8D%93%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%BA%94)/</url>
+    <content><![CDATA[<h2 id="Android逆向学习笔记-五"><a href="#Android逆向学习笔记-五" class="headerlink" title="Android逆向学习笔记(五)"></a>Android逆向学习笔记(五)</h2><p><a href="https://www.52pojie.cn/thread-1695796-1-1.html#44239142_%E4%BA%8C%E3%80%81%E5%B7%A5%E5%85%B7">《安卓逆向这档事》二、初识APK文件结构、双开、汉化、基础修</a></p>
+<span id="more"></span>
+
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li><a href="#1">APK文件的基本结构</a></li>
+<li><a href="#2">APK双开原理及操作</a></li>
+<li><a href="#3">汉化APK</a></li>
+<li><a href="#4">初识AndroidManifest.xml</a></li>
+<li><a href="#5">更改图标与文件名</a></li>
+<li><a href="#6">课后作业</a></li>
+</ul>
+<hr>
+<h4 id="APK文件的基本结构"><a href="#APK文件的基本结构" class="headerlink" title="APK文件的基本结构"></a><a href="#1">APK文件的基本结构</a></h4><p>apk文件实际上是一个标准的zip格式压缩文件，它的结构是：</p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>注释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>assets目录</td>
+<td>存放APK的静态资源文件，比如视频，音频，图片等等</td>
+</tr>
+<tr>
+<td>lib目录</td>
+<td>armeabi-v7a基本通用所有android设备，arm64-v8a只适用于64位的android设备，x86常见用于android模拟器，其目录下的.so文件是c或c++编译的动态链接库文件</td>
+</tr>
+<tr>
+<td>MATE-INF目录</td>
+<td>保存应用的签名信息，签名信息可以验证APK文件的完整性，相当于APK文件的身份证（验证文件是否被修改）</td>
+</tr>
+<tr>
+<td>res目录</td>
+<td>res目录存放资源文件，包括图片，字符串等等，APK的脸蛋（图标）也由它的layout设计</td>
+</tr>
+<tr>
+<td>AndroidManifest.xml文件</td>
+<td>APK的应用清单信息，它描述了应用的名字，版本，权限，引用的库文件等信息</td>
+</tr>
+<tr>
+<td>classes.dex文件</td>
+<td>classes.dex是Java源码编译后生成的java字节码文件，APK文件运行的主要逻辑</td>
+</tr>
+<tr>
+<td>resources.arsc文件</td>
+<td>resources.arsc是编译后的二进制资源文件，它是一个映射表，映射着资源和Id，通过R文件中的Id就可以找到对应的资源</td>
+</tr>
+</tbody></table>
+<p>asset和lib目录不一定有，但是是比较常见的。</p>
+<p>其实这里我是有一些疑问的：</p>
+<ol>
+<li><p><mark>asset目录与res目录里面都存放图片等信息，里面的图片有什么区别吗？</mark></p>
+<p>两者是有区别的，res目录里存放的是UI图片（用户界面的图片，eg：按钮图片，背景图片），asset目录放的是内容图片（eg：角色，地图）</p>
+</li>
+<li><p><mark>AndroidManifest.xml是不是我们在AK里面的入口函数?</mark></p>
+<p>不是，AndroidManifest更像是一个解释应用基本信息的文件，真正的入口函数是MainActivity.java</p>
+</li>
+</ol>
+<p>我们联系真实的apk文件看看，这个是老师给的文件。</p>
+
+
+<p>可以观察到这个apk文件中，没有asset，lib目录，多了kotlin,okhttp3目录，为什么？？</p>
+<ol>
+<li><p><mark>为什么没有aaset目录？</mark></p>
+<p>所有资源都放到res中了（res与asset混用）</p>
+</li>
+<li><p><mark>为什么有kotlin目录？</mark></p>
+<p>应用使用kotlin开发或者部分功能使用kotlin开发</p>
+</li>
+<li><p><mark>为什么有okhttp3目录</mark></p>
+<p>okhttp3是一个流行的HTTP客户端库</p>
+</li>
+</ol>
+<h4 id="APK双开原理及操作"><a href="#APK双开原理及操作" class="headerlink" title="APK双开原理及操作"></a><a href="#2">APK双开原理及操作</a></h4><p>双开：简单来说，就是手机同时运行两个或多个相同的应用，例如同时运行两个微信</p>
+<table>
+<thead>
+<tr>
+<th align="left">原理</th>
+<th align="left">解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">修改包名</td>
+<td align="left">让手机系统认为这是2个APP，这样的话就能生成2个数据存储路径，此时的多开就等于你打开了两个互不干扰的APP</td>
+</tr>
+<tr>
+<td align="left">修改Framework</td>
+<td align="left">对于有系统修改权限的厂商，可以修改Framework来实现双开的目的，例如：小米自带多开</td>
+</tr>
+<tr>
+<td align="left">通过虚拟化技术实现</td>
+<td align="left">虚拟Framework层、虚拟文件系统、模拟Android对组件的管理、虚拟应用进程管理 等一整套虚拟技术，将APK复制一份到虚拟空间中运行，例如：平行空间</td>
+</tr>
+<tr>
+<td align="left">以插件机制运行</td>
+<td align="left">利用反射替换，动态代{过}{滤}理，hook了系统的大部分与system—server进程通讯的函数，以此作为“欺上瞒下”的目的，欺骗系统“以为”只有一个apk在运行，瞒过插件让其“认为”自己已经安装。例如：VirtualApp</td>
+</tr>
+</tbody></table>
+<p>本节课老师只着重说了一下第一种双开的方法，但是这里我作为了解都看了一下。第一种就不再说了。</p>
+<p><mark><strong>第二种：修改Framework：</strong></mark></p>
+<p><strong>首先什么是Framework（框架）?</strong></p>
+<ul>
+<li><strong>它是一层核心代码</strong>，位于安卓操作系统（Linux内核）和应用软件之间。</li>
+<li><strong>作用</strong>：它为所有APP提供了一个统一的、标准的运行环境和API接口。当你的APP想启动一个活动、发送通知、访问传感器、弹出对话框时，它都不是直接和硬件或系统底层打交道，而是调用<strong>Framework</strong>提供的相应功能。</li>
+<li><strong>类比</strong>：如果把安卓系统比作一辆汽车，那么：<ul>
+<li><strong>Linux内核</strong>是发动机、底盘、变速箱等最底层的机械结构。</li>
+<li><strong>Framework</strong>就是方向盘、油门、刹车、仪表盘、中控系统——它为司机（APP）提供了统一、易用的操作界面，隐藏了底层的复杂机械原理。</li>
+<li><strong>APP</strong>就是司机，通过操作方向盘和油门来驾驶汽车。</li>
+</ul>
+</li>
+</ul>
+<p><strong>一句话总结：Framework是所有Android APP赖以生存的、由系统提供的公共基础服务层。</strong></p>
+<p><strong>厂商如何通过修改Framework实现双开？</strong></p>
+<p>双开的本质是：让同一个APP的两个副本同时独立运行，且数据互不干扰。</p>
+<p>对于手机厂商来说，他们拥有系统的“上帝视角”：</p>
+<ol>
+<li>Framework负责管理APP的整个生命周期（创建，启动，销毁，暂停）。厂商可以修改这部分。</li>
+</ol>
+<p>修改Framework就相当于是修改宪法一样，在系统最底层进行修改。</p>
+<p><mark><strong>第三种：通过虚拟化技术实现：</strong></mark></p>
+<p>虚拟化技术的本质是 <strong>“欺骗”</strong>，让一个APP认为自己运行在一个完整的、独立的Android系统中，而实际上它只是运行在一个受控制的<strong>沙箱环境</strong>里。</p>
+<p>实现步骤相当繁琐，这里不再仔细研究了。</p>
+<p>那么怎么利用第一种修改包名的方式进行双开文件呢？</p>
+<ol>
+<li>下载 <strong>MT管理器和NP管理器</strong></li>
+<li>打开NP管理器（因为这个功能MT管理器要vip）</li>
+<li>点击左上角的图标</li>
+</ol>
+
+
+<ol start="4">
+<li><p>点击我们的apk文件wuaipojie</p>
+</li>
+<li><p>选择提取安装包，有提示弹出后选择定位</p>
+</li>
+<li><p>点击apk文件内选择功能</p>
+</li>
+<li><p>点击apk共存</p>
+
+</li>
+<li><p>点击确定</p>
+</li>
+<li><p>之后就可以看到有两个文件了</p>
+
+</li>
+<li><p>点击新的文件，安装。就可以实现应用双开了</p>
+</li>
+</ol>
+<p>其实不难理解这个操作的原因，因为我们是通过改变apk文件的包名来实现应用双开的，这个操作正好改变了包名从而实现应用的双开。</p>
+<h4 id="汉化APK"><a href="#汉化APK" class="headerlink" title="汉化APK"></a><a href="#3">汉化APK</a></h4><p>汉化：使用专门的工具对外文版的软件资源进行读取、翻译、修改、回写等一系列处理，使软件的菜单、对话框、提示等用户界面显示为中文，而程序的内核和功能保持不变，这个过程即为软件汉化</p>
+<p>汉化可分三种</p>
+<ul>
+<li>arsc汉化：resources.arsc文件，通常用于界面文本汉化，菜单项汉化等等</li>
+<li>xml汉化：对应各种xml文件，用于汉化硬编码文本，应用名称，权限描述等等</li>
+<li>dex汉化：classes.dex文件，适用于代码中的字符串</li>
+</ul>
+<p><strong>将demo中的文字进行汉化</strong></p>
+
+
+<p>这个是我们需要汉化的界面，主要流程是：</p>
+<ol>
+<li>打开MT管理器</li>
+<li>全局搜索字符串</li>
+<li>保存安装</li>
+</ol>
+<p>用图片演示下</p>
+
+
+
+
+
+
+<ul>
+<li>反编译：将xml文件转化成人类可读的xml格式</li>
+<li>字符常量池：只提取xml文件的字符串资源</li>
+</ul>
+
+
+<p>将英文改成中文即可，改完之后，点击上面保存标志</p>
+<p>之后重新安装，但是安装时会提示安装失败，这是因为签名不一致，我们汉化之后使用的是MT管理器的签名，把之前下载的软件卸载了，再安装就可以了。</p>
+<p>改好之后，我们就要改下面这个俄文的，因为不能直接在页面上复制，可以使用开发者助手。</p>
+
+
+<p>开始之后，点击我们要复制的文本，会弹出控件属性，点击Text就可以复制了。</p>
+<p>和原来一样，还是去搜索这个字符串。</p>
+<p>点击文件之后，选择翻译模式，点击DEFAULT，找到并输入中文之后这部分就汉化完成了。</p>
+<p>第三部分是一段英文，依旧使用开发者助手进行复制，我们在MT管理器中搜索这段英文</p>
+<p>搜索之后，发现这个字符串在classes.dex中，我们点击该文件，选择Dex编辑器++</p>
+
+
+
+
+
+
+<p>修改完之后，点击上方保存。重新安装</p>
+
+
+<p>可以看到已经汉化好了</p>
+<h4 id="初识AndroidManifest-xml"><a href="#初识AndroidManifest-xml" class="headerlink" title="初识AndroidManifest.xml"></a><a href="#4">初识AndroidManifest.xml</a></h4><p>AndroidManifest.xml文件是整个应用程序的信息描述文件，定义了应用程序中包含的Activity,Service,Content provider和BroadcastReceiver组件信息。每个应用程序在根目录下必须包含一个AndroidManifest.xml文件，且文件名不能修改。它描述了package中暴露的组件，他们各自的实现类，各种能被处理的数据和启动位置。</p>
+<table>
+<thead>
+<tr>
+<th align="left">属性</th>
+<th align="left">定义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">versionCode</td>
+<td align="left">版本号，主要用来更新，例如:12</td>
+</tr>
+<tr>
+<td align="left">versionName</td>
+<td align="left">版本名，给用户看的，例如:1.2</td>
+</tr>
+<tr>
+<td align="left">package</td>
+<td align="left">包名，例如：com.zj.52pj.demo</td>
+</tr>
+<tr>
+<td align="left">uses-permission android:name&#x3D;””</td>
+<td align="left">应用权限，例如：android.permission.INTERNET 代表网络权限</td>
+</tr>
+<tr>
+<td align="left">android:label&#x3D;”@string&#x2F;app_name”</td>
+<td align="left">应用名称</td>
+</tr>
+<tr>
+<td align="left">android:icon&#x3D;”@mipmap&#x2F;ic_launcher”</td>
+<td align="left">应用图标路径</td>
+</tr>
+<tr>
+<td align="left">android:debuggable&#x3D;”true”</td>
+<td align="left">应用是否开启debug权限</td>
+</tr>
+</tbody></table>
+<h4 id="更改图标与文件名"><a href="#更改图标与文件名" class="headerlink" title="更改图标与文件名"></a><a href="#5">更改图标与文件名</a></h4><p>这个功能在NP管理器中有（MT需要vip）</p>
+<p>我们点击需要修改的APK文件，点击功能，点击通用编辑，修改名字与图标即可</p>
+
+
+<p>成功了。</p>
+<h4 id="课后作业"><a href="#课后作业" class="headerlink" title="课后作业"></a><a href="#5">课后作业</a></h4><blockquote>
+<p>更改图片</p>
+</blockquote>
+<p>首先我们需要下载<code>界面分析</code>这个软件。</p>
+<p>通过网盘分享的文件：xiaoluo.spy.apk<br>链接: <a href="https://pan.baidu.com/s/1pJXZ7cdEXs1tPdi6_aCVXQ">https://pan.baidu.com/s/1pJXZ7cdEXs1tPdi6_aCVXQ</a> 提取码: 1mp6</p>
+
+
+<p>下载这个软件的原因是：它可以识别出图片的id，通过id我们可以找到图片的位置及名称</p>
+<p>这里我已经替换过了，我就用替换过的图片写了，过程都是一样的。</p>
+
+
+<p>点击我们需要查的控件（图片），将 <strong>idHex</strong>复制下来，这里查到的是<code>0x7f0800d3</code></p>
+
+
+
+
+<p>搜索到Jf.xml文件中有这个id，点击这个文件，点击反编译</p>
+
+
+<p>我们刚刚搜索的<code>0x7f0800d3</code>是控件Id，控件id只是标识UI控件，而我们要替换的是资源，所以我们这里真正的目的是为了找到资源Id<code>7F0D000B</code></p>
+<p>我们去<code>resources.arsc</code>中搜索该资源id，那么为什么要在resources.arsc中搜索呢？？</p>
+<ul>
+<li>resources.arsc是APK的资源索引表</li>
+<li>包含了所有资源Id与资源名称与路径映射关系</li>
+</ul>
+<p>使用Arsc编辑器打开该文件，选择ID定位资源</p>
+
+
+<p>这里面就显示了图片的路径及名称</p>
+
+
+<p>找到之后，我们要替换的图片肯定是在共享文件中的，共享文件的路径是<code>/storage/emulated/o/Pictures</code></p>
+<p>需要注意的是，共享文件夹中的图片命名必须和替换的图片名一致</p>
+
+
+<p>长按共享文件中的图片</p>
+
+
+<p>替换好之后，安装就可以了。</p>
+]]></content>
+      <tags>
+        <tag>安卓逆向</tag>
+      </tags>
+  </entry>
 </search>
