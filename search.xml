@@ -1928,4 +1928,315 @@
         <tag>安卓逆向</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Android逆向学习笔记(七)</title>
+    <url>/2026/02/12/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)/</url>
+    <content><![CDATA[<h2 id="Android逆向学习笔记-七"><a href="#Android逆向学习笔记-七" class="headerlink" title="Android逆向学习笔记(七)"></a>Android逆向学习笔记(七)</h2><p><a href="https://www.52pojie.cn/thread-1706691-1-1.html">《安卓逆向这档事》四、恭喜你获得广告&amp;弹窗静默</a></p>
+<span id="more"></span>
+
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li><a href="#1">Activity生命周期</a></li>
+<li><a href="#2">教程demo去广告</a></li>
+<li><a href="#3">课后作业</a></li>
+<li><a href="#4">总结</a></li>
+</ul>
+<hr>
+<h3 id="Activity生命周期"><a href="#Activity生命周期" class="headerlink" title="Activity生命周期"></a><a href="#1">Activity生命周期</a></h3><table>
+<thead>
+<tr>
+<th align="left">函数名称</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">onCreate()</td>
+<td align="left">一个Activity启动后第一个被调用的函数，常用来在此方法中进行Activity的一些初始化操作。例如创建View，绑定数据，注册监听，加载参数等。</td>
+</tr>
+<tr>
+<td align="left">onStart()</td>
+<td align="left">当Activity显示在屏幕上时，此方法被调用但此时还无法进行与用户的交互操作。</td>
+</tr>
+<tr>
+<td align="left">onResume()</td>
+<td align="left">这个方法在onStart()之后调用，也就是在Activity准备好与用户进行交互的时候调用，此时的Activity一定位于Activity栈顶，处于运行状态。</td>
+</tr>
+<tr>
+<td align="left">onPause()</td>
+<td align="left">这个方法是在系统准备去启动或者恢复另外一个Activity的时候调用，通常在这个方法中执行一些释放资源的方法，以及保存一些关键数据。</td>
+</tr>
+<tr>
+<td align="left">onStop()</td>
+<td align="left">这个方法是在Activity完全不可见的时候调用的。</td>
+</tr>
+<tr>
+<td align="left">onDestroy()</td>
+<td align="left">这个方法在Activity销毁之前调用，之后Activity的状态为销毁状态。</td>
+</tr>
+<tr>
+<td align="left">onRestart()</td>
+<td align="left">当Activity从停止stop状态恢进入start状态时调用状态。</td>
+</tr>
+</tbody></table>
+<p><strong>Q：</strong> 在AdActivity（本次demo）中这些生命周期的某些函数怎么没有被调用？？还是说只是没有显示调用，其实都有执行？？</p>
+<p><strong>A：</strong> 它们其实都在执行，只是没有被显式重写出来。在 Android 开发中，Activity 的生命周期就像是一套默认的剧本，即使你不在代码里写出来，系统也会在后台默默地完成每一个步骤。</p>
+<h3 id="教程demo去广告"><a href="#教程demo去广告" class="headerlink" title="教程demo去广告"></a><a href="#2">教程demo去广告</a></h3><h4 id="启动广告"><a href="#启动广告" class="headerlink" title="启动广告"></a>启动广告</h4><p><mark><strong>方法一</strong></mark></p>
+<p>打开MT管理器中的Activity记录，得到教程demo中的启动广告是AdAcrivity</p>
+<p>打开Dex编辑器搜索<code>com.zj.wuaipojie.ui.AdActivity</code></p>
+<img src="/2026/02/12/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)/1.png" class="" title="This is an image">
+
+<p>转成java之后，代码如下</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Decompiled by Jadx (from NP Manager)</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="keyword">package</span> com.zj.wuaipojie.ui;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.content.Context;</span><br><span class="line"><span class="keyword">import</span> android.content.Intent;</span><br><span class="line"><span class="keyword">import</span> android.os.Bundle;</span><br><span class="line"><span class="keyword">import</span> android.os.Handler;</span><br><span class="line"><span class="keyword">import</span> androidx.appcompat.app.AppCompatActivity;</span><br><span class="line"><span class="keyword">import</span> com.zj.wuaipojie.ui.AdActivity$.ExternalSyntheticLambda0;</span><br><span class="line"><span class="keyword">import</span> kotlin.Metadata;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Metadata(d1 = &#123;&quot;\u0000\u001a\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\u0002\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0000\u0018\u00002\u00020\u0001B\u0005¢\u0006\u0002\u0010\u0002J\b\u0010\u0003\u001a\u00020\u0004H\u0002J\b\u0010\u0005\u001a\u00020\u0004H\u0002J\u0012\u0010\u0006\u001a\u00020\u00042\b\u0010\u0007\u001a\u0004\u0018\u00010\bH\u0014¨\u0006\t&quot;&#125;, d2 = &#123;&quot;Lcom/zj/wuaipojie/ui/AdActivity;&quot;, &quot;Landroidx/appcompat/app/AppCompatActivity;&quot;, &quot;()V&quot;, &quot;jump&quot;, &quot;&quot;, &quot;loadAd&quot;, &quot;onCreate&quot;, &quot;savedInstanceState&quot;, &quot;Landroid/os/Bundle;&quot;, &quot;app_release&quot;&#125;, k = 1, mv = &#123;1, 7, 1&#125;, xi = 48)</span></span><br><span class="line"><span class="comment">/* compiled from: AdActivity.kt */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">AdActivity</span> <span class="keyword">extends</span> <span class="title class_">AppCompatActivity</span> &#123;</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onCreate</span><span class="params">(Bundle bundle)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>.onCreate(bundle);</span><br><span class="line">        setContentView(<span class="number">2131427363</span>);</span><br><span class="line">        loadAd();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">jump</span><span class="params">()</span> &#123;</span><br><span class="line">        startActivity(<span class="keyword">new</span> <span class="title class_">Intent</span>((Context) <span class="built_in">this</span>, ChallengeThird.class));</span><br><span class="line">        finish();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">loadAd</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Handler</span>().postDelayed(<span class="keyword">new</span> <span class="title class_">ExternalSyntheticLambda0</span>(<span class="built_in">this</span>), <span class="number">3000</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* renamed from: loadAd$lambda-0 */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">void</span> m0loadAd$lambda-<span class="number">0</span>(AdActivity adActivity) &#123;</span><br><span class="line">        adActivity.jump();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>解释一下代码的逻辑：</p>
+<ol>
+<li><code>onCreat</code>（系统触发）<ul>
+<li>系统执行Actuvity，首先进入这个“房间”</li>
+<li>执行<code>loadAd()</code></li>
+</ul>
+</li>
+<li><code>loadAd</code>（被onCreat调用）<ul>
+<li>这里它做了一个很关键的事情：定了一个闹钟</li>
+<li><code>new Handler().postDelayed(...)</code>：这行代码的意思是：3000毫秒之后去执行那个回调函数</li>
+<li><strong>注意</strong>：此时 <code>loadAd</code> 已经执行完了，<code>onCreate</code> 也执行完了。</li>
+</ul>
+</li>
+<li><code>m0loadAd$lambda-0</code>（回调函数触发）<ul>
+<li>当闹钟时间到3000ms，系统会自动执行回调函数</li>
+</ul>
+</li>
+<li><code>jump</code>（被回调函数调用）<ul>
+<li>执行跳转和关闭</li>
+</ul>
+</li>
+</ol>
+<p><strong>这里我有几个问题：</strong></p>
+<p><strong>Q：</strong> 回调函数的作用是什么？<br><strong>A：</strong> 回调函数的作用就是等待，它相当于是一个闹钟，到时间之后喊一声，执行jump函数， <strong>回调函数负责处理时机，jump负责处理逻辑</strong></p>
+<p>知道程序逻辑之后，就好办了。</p>
+<p><code>new Handler().postDelayed(new ExternalSyntheticLambda0(this), 3000);</code>它的意思就是等3000ms之后再去执行回调函数，那我们将3000ms改成0就可以直接调用回调函数了。那么启动广告自然就跳过了。</p>
+<p><mark><strong>方法二</strong></mark></p>
+<p>查看xml文件，代码如下</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--开通会员可提高反编译速度、资源代码自动转名称，以及激活智能编辑和自动补全功能--&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">manifest</span> <span class="attr">xmlns:android</span>=<span class="string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">    <span class="attr">android:versionCode</span>=<span class="string">&quot;1&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">    <span class="attr">android:versionName</span>=<span class="string">&quot;1.0&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">    <span class="attr">android:compileSdkVersion</span>=<span class="string">&quot;32&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">    <span class="attr">android:compileSdkVersionCodename</span>=<span class="string">&quot;12&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">    <span class="attr">package</span>=<span class="string">&quot;com.zj.wuaipojie&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">    <span class="attr">platformBuildVersionCode</span>=<span class="string">&quot;32&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">    <span class="attr">platformBuildVersionName</span>=<span class="string">&quot;12&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">uses-sdk</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">        <span class="attr">android:minSdkVersion</span>=<span class="string">&quot;27&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">        <span class="attr">android:targetSdkVersion</span>=<span class="string">&quot;32&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 拥有完全的网络访问权限 --&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">&quot;android.permission.INTERNET&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 修改或删除您共享存储空间中的内容 --&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">application</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">        <span class="attr">android:theme</span>=<span class="string">&quot;@7F1101D3&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">        <span class="attr">android:label</span>=<span class="string">&quot;@7F10001B&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">        <span class="attr">android:icon</span>=<span class="string">&quot;@7F0D000F&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">        <span class="attr">android:allowBackup</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">        <span class="attr">android:supportsRtl</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">        <span class="attr">android:extractNativeLibs</span>=<span class="string">&quot;false&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">        <span class="attr">android:fullBackupContent</span>=<span class="string">&quot;@7F130000&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">        <span class="attr">android:networkSecurityConfig</span>=<span class="string">&quot;@7F130002&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">        <span class="attr">android:appComponentFactory</span>=<span class="string">&quot;androidx.core.app.CoreComponentFactory&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">        <span class="attr">android:dataExtractionRules</span>=<span class="string">&quot;@7F130001&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">activity</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">&quot;com.zj.wuaipojie.ui.ChallengeSixth&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">            <span class="attr">android:exported</span>=<span class="string">&quot;false&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">activity</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">&quot;com.zj.wuaipojie.ui.ChallengeFifth&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">            <span class="attr">android:exported</span>=<span class="string">&quot;true&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">activity</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">&quot;com.zj.wuaipojie.ui.ChallengeFourth&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">            <span class="attr">android:exported</span>=<span class="string">&quot;true&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">activity</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">&quot;com.zj.wuaipojie.ui.ChallengeThird&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">            <span class="attr">android:exported</span>=<span class="string">&quot;false&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">activity</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">&quot;com.zj.wuaipojie.ui.ChallengeSecond&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">            <span class="attr">android:exported</span>=<span class="string">&quot;false&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">activity</span> <span class="attr">android:name</span>=<span class="string">&quot;com.zj.wuaipojie.ui.AdActivity&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">activity</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">            <span class="attr">android:label</span>=<span class="string">&quot;@7F10001B&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">&quot;com.zj.wuaipojie.ui.MainActivity&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">            <span class="attr">android:exported</span>=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">            <span class="tag">&lt;<span class="name">intent-filter</span>&gt;</span></span><br><span class="line"></span><br><span class="line">                <span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">&quot;android.intent.action.MAIN&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">                <span class="tag">&lt;<span class="name">category</span> <span class="attr">android:name</span>=<span class="string">&quot;android.intent.category.LAUNCHER&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">            <span class="tag">&lt;/<span class="name">intent-filter</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;/<span class="name">activity</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">activity</span> <span class="attr">android:name</span>=<span class="string">&quot;com.zj.wuaipojie.ui.ChallengeFirst&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;/<span class="name">application</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">manifest</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以了解到，程序的入口页面如下：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">activity</span> <span class="attr">android:name</span>=<span class="string">&quot;com.zj.wuaipojie.ui.MainActivity&quot;</span> <span class="attr">...</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">intent-filter</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">&quot;android.intent.action.MAIN&quot;</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">category</span> <span class="attr">android:name</span>=<span class="string">&quot;android.intent.category.LAUNCHER&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">intent-filter</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">activity</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>MAIN：就是程序的主入口</li>
+</ul>
+<p>为了绕过启动广告，可以直接将入口<code>com.zj.wuaipojie.ui.MainActivity</code>改成<code>com.zj.wuaipojie.ui.ChallengeThird</code></p>
+<p>但是这种方法是非常不建议使用的</p>
+<ol>
+<li><strong>全局初始化失效</strong> ：通常 <code>MainActivity</code> 或其更早的 <code>Application</code> 类会初始化数据库、网络框架、甚至是用户的 VIP 权限状态。直接跳过它们，<code>ChallengeThird</code> 运行时可能会因为找不到这些数据而瞬间 <strong>闪退</strong> 。</li>
+<li><strong>逻辑断裂</strong> ：有些关卡需要从上一关传递一个 <code>score</code> 参数，直接启动第三关会导致程序拿不到参数而报错。</li>
+</ol>
+<p><mark><strong>方法三</strong> </mark></p>
+<p>我们查找调用AdActivity函数的函数有哪些</p>
+<p>首先长按该类选择复制，选择最下面的这个</p>
+<img src="/2026/02/12/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)/2.png" class="" title="This is an image">
+
+<img src="/2026/02/12/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)/3.png" class="" title="This is an image">
+
+<p>查找之后：</p>
+<img src="/2026/02/12/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)/4.png" class="" title="This is an image">
+
+<p>因为AdActivity里面是一定会调用的，所以这个肯定不是我们要找的，那只有下面的这个了，我们查看一下它的java代码</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Decompiled by Jadx (from NP Manager)</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="keyword">package</span> com.zj.wuaipojie.ui.Adapter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.content.Intent;</span><br><span class="line"><span class="keyword">import</span> android.view.LayoutInflater;</span><br><span class="line"><span class="keyword">import</span> android.view.View;</span><br><span class="line"><span class="keyword">import</span> android.view.ViewGroup;</span><br><span class="line"><span class="keyword">import</span> androidx.recyclerview.widget.RecyclerView.Adapter;</span><br><span class="line"><span class="keyword">import</span> androidx.recyclerview.widget.RecyclerView.ViewHolder;</span><br><span class="line"><span class="keyword">import</span> com.zj.wuaipojie.ui.AdActivity;</span><br><span class="line"><span class="keyword">import</span> com.zj.wuaipojie.ui.Adapter.ChallengeAdapter$.ExternalSyntheticLambda0;</span><br><span class="line"><span class="keyword">import</span> com.zj.wuaipojie.ui.Challenge;</span><br><span class="line"><span class="keyword">import</span> com.zj.wuaipojie.ui.ChallengeFifth;</span><br><span class="line"><span class="keyword">import</span> com.zj.wuaipojie.ui.ChallengeFirst;</span><br><span class="line"><span class="keyword">import</span> com.zj.wuaipojie.ui.ChallengeFourth;</span><br><span class="line"><span class="keyword">import</span> com.zj.wuaipojie.ui.ChallengeSecond;</span><br><span class="line"><span class="keyword">import</span> com.zj.wuaipojie.ui.ChallengeSixth;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> kotlin.Metadata;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Metadata(d1 = &#123;&quot;\u00000\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010 \n\u0002\u0018\u0002\n\u0002\b\u0004\n\u0002\u0010\b\n\u0000\n\u0002\u0010\u0002\n\u0002\b\u0004\n\u0002\u0018\u0002\n\u0002\b\u0003\u0018\u00002\f\u0012\b\u0012\u00060\u0002R\u00020\u00000\u0001:\u0001\u0013B\u0013\u0012\f\u0010\u0003\u001a\b\u0012\u0004\u0012\u00020\u00050\u0004¢\u0006\u0002\u0010\u0006J\b\u0010\t\u001a\u00020\nH\u0016J\u001c\u0010\u000b\u001a\u00020\f2\n\u0010\r\u001a\u00060\u0002R\u00020\u00002\u0006\u0010\u000e\u001a\u00020\nH\u0016J\u001c\u0010\u000f\u001a\u00060\u0002R\u00020\u00002\u0006\u0010\u0010\u001a\u00020\u00112\u0006\u0010\u0012\u001a\u00020\nH\u0016R\u0017\u0010\u0003\u001a\b\u0012\u0004\u0012\u00020\u00050\u0004¢\u0006\b\n\u0000\u001a\u0004\b\u0007\u0010\b¨\u0006\u0014&quot;&#125;, d2 = &#123;&quot;Lcom/zj/wuaipojie/ui/Adapter/ChallengeAdapter;&quot;, &quot;Landroidx/recyclerview/widget/RecyclerView$Adapter;&quot;, &quot;Lcom/zj/wuaipojie/ui/Adapter/ChallengeAdapter$ViewHolder;&quot;, &quot;mChallenges&quot;, &quot;&quot;, &quot;Lcom/zj/wuaipojie/ui/Challenge;&quot;, &quot;(Ljava/util/List;)V&quot;, &quot;getMChallenges&quot;, &quot;()Ljava/util/List;&quot;, &quot;getItemCount&quot;, &quot;&quot;, &quot;onBindViewHolder&quot;, &quot;&quot;, &quot;holder&quot;, &quot;position&quot;, &quot;onCreateViewHolder&quot;, &quot;parent&quot;, &quot;Landroid/view/ViewGroup;&quot;, &quot;viewType&quot;, &quot;ViewHolder&quot;, &quot;app_release&quot;&#125;, k = 1, mv = &#123;1, 7, 1&#125;, xi = 48)</span></span><br><span class="line"><span class="comment">/* compiled from: ChallengeAdapter.kt */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">ChallengeAdapter</span> <span class="keyword">extends</span> <span class="title class_">Adapter</span>&lt;ViewHolder&gt; &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> List&lt;Challenge&gt; mChallenges;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* renamed from: onCreateViewHolder$lambda-0 */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">void</span> m0onCreateViewHolder$lambda-<span class="number">0</span>(ViewHolder viewHolder, View view) &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">adapterPosition</span> <span class="operator">=</span> viewHolder.getAdapterPosition();</span><br><span class="line">        Intent intent;</span><br><span class="line">        <span class="keyword">if</span> (adapterPosition == <span class="number">0</span>) &#123;</span><br><span class="line">            intent = <span class="keyword">new</span> <span class="title class_">Intent</span>();</span><br><span class="line">            intent.setClass(view.getContext(), ChallengeFirst.class);</span><br><span class="line">            view.getContext().startActivity(intent);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (adapterPosition == <span class="number">1</span>) &#123;</span><br><span class="line">            intent = <span class="keyword">new</span> <span class="title class_">Intent</span>();</span><br><span class="line">            intent.setClass(view.getContext(), ChallengeSecond.class);</span><br><span class="line">            view.getContext().startActivity(intent);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (adapterPosition == <span class="number">2</span>) &#123;</span><br><span class="line">            intent = <span class="keyword">new</span> <span class="title class_">Intent</span>();</span><br><span class="line">            intent.setClass(view.getContext(), AdActivity.class);</span><br><span class="line">            view.getContext().startActivity(intent);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (adapterPosition == <span class="number">3</span>) &#123;</span><br><span class="line">            intent = <span class="keyword">new</span> <span class="title class_">Intent</span>();</span><br><span class="line">            intent.setClass(view.getContext(), ChallengeFourth.class);</span><br><span class="line">            view.getContext().startActivity(intent);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (adapterPosition == <span class="number">4</span>) &#123;</span><br><span class="line">            intent = <span class="keyword">new</span> <span class="title class_">Intent</span>();</span><br><span class="line">            intent.setClass(view.getContext(), ChallengeFifth.class);</span><br><span class="line">            view.getContext().startActivity(intent);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (adapterPosition == <span class="number">5</span>) &#123;</span><br><span class="line">            intent = <span class="keyword">new</span> <span class="title class_">Intent</span>();</span><br><span class="line">            intent.setClass(view.getContext(), ChallengeSixth.class);</span><br><span class="line">            view.getContext().startActivity(intent);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onBindViewHolder</span><span class="params">(ViewHolder viewHolder, <span class="type">int</span> i)</span> &#123;</span><br><span class="line">        <span class="type">Challenge</span> <span class="variable">challenge</span> <span class="operator">=</span> (Challenge) <span class="built_in">this</span>.mChallenges.get(i);</span><br><span class="line">        viewHolder.getChallengeName().setText(challenge.getChallenege_name());</span><br><span class="line">        viewHolder.getChallengeImage().setImageResource(challenge.getChallenge_img());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> ViewHolder <span class="title function_">onCreateViewHolder</span><span class="params">(ViewGroup viewGroup, <span class="type">int</span> i)</span> &#123;</span><br><span class="line">        <span class="type">ViewHolder</span> <span class="variable">viewHolder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ViewHolder</span>(<span class="built_in">this</span>, LayoutInflater.from(viewGroup.getContext()).inflate(<span class="number">2131427364</span>, viewGroup, <span class="literal">false</span>));</span><br><span class="line">        viewHolder.getChallengeImage().setOnClickListener(<span class="keyword">new</span> <span class="title class_">ExternalSyntheticLambda0</span>(viewHolder));</span><br><span class="line">        <span class="keyword">return</span> viewHolder;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ChallengeAdapter</span><span class="params">(List&lt;Challenge&gt; list)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.mChallenges = list;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getItemCount</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.mChallenges.size();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> List&lt;Challenge&gt; <span class="title function_">getMChallenges</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.mChallenges;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到这一段：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (adapterPosition == <span class="number">2</span>) &#123;</span><br><span class="line">            intent = <span class="keyword">new</span> <span class="title class_">Intent</span>();</span><br><span class="line">            intent.setClass(view.getContext(), AdActivity.class);</span><br><span class="line">            view.getContext().startActivity(intent);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以知道当<code>adapterPosition == 2</code>时进入AdActivity，我们把它修改成<code>ChallengeThird</code></p>
+<p>以上三种对于这个demo来说都是可以跳过启动广告的。</p>
+<h4 id="弹窗广告"><a href="#弹窗广告" class="headerlink" title="弹窗广告"></a>弹窗广告</h4><p><mark><strong>修改xml中的versiocode</strong></mark></p>
+<p>这个弹窗广告是检测是否需要更新的，与<code>versionCode</code>有关，这是版本号，只要将这个版本号修改成比较大的数字，他就不会检测出需要更新</p>
+<p>ok，将1改成2之后就没有这个弹窗了</p>
+<p><strong>这种方法在某些特定的情况下有用，但他并不是“删除弹窗”，而是一种欺骗手段。</strong></p>
+<p>在安卓开发中<code>versionCodea</code>是一个整数，用来标识应用的版本。系统和应用逻辑通常通过比较这个数字来判断是否有新版本。</p>
+<p><strong>为什么要改<code>versionCode</code>?</strong></p>
+<ul>
+<li><p><strong>本地逻辑：</strong> 如果 <code>服务器版本号 &gt; 本地 versionCode</code>，则弹出更新窗口。</p>
+</li>
+<li><p><strong>你的操作：</strong> 把本地的 <code>1</code> 改成了 <code>2</code>（甚至改成 <code>99999</code>）。</p>
+</li>
+<li><p><strong>结果：</strong> 软件运行时发现 <code>2 &gt;= 服务器版本号</code>，它就会“认为”自己已经是最新版，从而不触发弹窗。</p>
+</li>
+</ul>
+<p><strong>这种方法的局限性</strong></p>
+<p>虽然这招很省事，但它有很多“翻车”的情况：</p>
+<ul>
+<li><strong>强制更新：</strong> 如果服务器要求必须是某个特定版本（例如必须是 <code>3</code>），而你改成 <code>2</code> 依然没达到要求，弹窗还在。</li>
+<li><strong>服务端校验：</strong> 现在的 APP 往往会把 <code>versionCode</code> 传给服务器。如果服务器发现你的版本号不存在（或者是未来的版本），可能会直接拒绝提供服务（报错或闪退）。</li>
+<li><strong>硬编码弹窗：</strong> 有些弹窗根本不是根据版本号触发的，而是根据日期，或者是开发者在代码里写死了“只要运行就弹窗广告”。</li>
+<li><strong>签名校验：</strong> 修改 XML 后需要重新签名。如果软件有签名校验，修改后可能无法启动。</li>
+</ul>
+<p><mark><strong>Hook弹窗(推荐算法助手开启弹窗定位)</strong></mark></p>
+<p><strong>方法一：</strong></p>
+<p>首先下载算法助手，启用模块，勾选apk文件</p>
+
+
+<p>设置完之后，打开算法助手，点击apk文件，勾选<code>应用总开关</code>与<code>弹窗定位（返回键可取消）</code></p>
+<p>我的算法助手中没有应用总开关这个选项，我就只勾选了弹窗定位（返回键可取消），但是还是可以绕过这个弹窗广告的，也就是说返回键是可以用的，可能是新版本布局不太一样？</p>
+<p><strong>方法二：</strong></p>
+<p>同样使用算法助手勾选屏蔽关键词弹窗，填写<code>广告</code>（弹窗中的关键词）</p>
+<p>ok，没有了</p>
+<p><mark><strong>修改dex弹窗代码</strong></mark></p>
+<p>算法助手中还是选择弹窗定位，右上角开始。</p>
+<p>查看算法助手中的日志，点击我们的apk文件，选择一号弹窗</p>
+<p>在日志中</p>
+<figure class="highlight stylus"><table><tr><td class="code"><pre><span class="line">at LSPHooker_<span class="selector-class">.show</span>(Unknown Source:<span class="number">8</span>)</span><br><span class="line">at com<span class="selector-class">.zj</span><span class="selector-class">.wuaipojie</span><span class="selector-class">.ui</span><span class="selector-class">.ChallengeThird</span><span class="selector-class">.onCreate</span>(ChallengeThird<span class="selector-class">.kt</span>:<span class="number">53</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong><code>LSPHooker_.show</code></strong>：这是算法助手拦截到的弹窗显示动作，它是“结果”，不用管它。</p>
+</li>
+<li><p><strong><code>com.zj.wuaipojie.ui.ChallengeThird.onCreate</code></strong>：这是关键！它告诉我们：在 <code>ChallengeThird</code> 这个界面的 <code>onCreate</code>（创建界面）方法中，触发了弹窗。</p>
+</li>
+</ul>
+<p>在MT管理器中搜索<code>com.zj.wuaipojie.ui.ChallengeThird.onCreate</code></p>
+<img src="/2026/02/12/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)/6.png" class="" title="This is an image">
+
+<p>找到两个show方法将它们注释掉</p>
+<ul>
+<li><p>在算法助手中，日志<code>at com.zj.wuaipojie.ui.ChallengeThird.onCreate(ChallengeThird.kt:53)</code>后面的<code>kt: 53</code>对应的就是代码中的<code>.line 53</code></p>
+<img src="/2026/02/12/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)/7.png" class="" title="This is an image">
+</li>
+<li><p><strong>原理：</strong> 编译器在把 Java&#x2F;Kotlin 转成 Smali 时，会保留原始代码的行号。算法助手抓取的是运行时的行号。</p>
+</li>
+</ul>
+<p>到这里突然我想到了一个问题：算法助手这个软件是不是只对LSPosed开发的文件管用？？</p>
+<p>不是的。算法助手并不只对 LSPosed 开发的文件管用，，可以对绝大多数安卓应用生效。</p>
+<h4 id="横幅广告"><a href="#横幅广告" class="headerlink" title="横幅广告"></a>横幅广告</h4><p><mark><strong>方法一</strong></mark></p>
+<p>下载开发助手，点击布局查看</p>
+<img src="/2026/02/12/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)/8.png" class="" title="This is an image">
+
+<p>id是<code>0x7f0801ca</code>，在MT管理器中点击xml搜索，搜索该id</p>
+<img src="/2026/02/12/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)/9.png" class="" title="This is an image">
+
+<p>将150dp改成0dp（可以只改宽度或高度或者都改）</p>
+<p>这样广告就去掉了</p>
+<p><mark><strong>方法二</strong></mark></p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ImageView</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:id</span>=<span class="string">&quot;@7F0801CA&quot;</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:background</span>=<span class="string">&quot;@7F0D0017&quot;</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:layout_width</span>=<span class="string">&quot;-2&quot;</span> </span></span><br><span class="line"><span class="tag"><span class="attr">android:visibility</span>=<span class="string">&quot;gone&quot;</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:layout_height</span>=<span class="string">&quot;150dp&quot;</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:layout_marginTop</span>=<span class="string">&quot;100dp&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>android:visibility=&quot;gone&quot;</code>几乎是安卓逆向和开发中隐藏的UI元素黄金准则。</p>
+<ol>
+<li><strong><code>android:visibility</code> 的三个选项</strong></li>
+</ol>
+<p>在安卓中，一个控件的“可见性”有三种状态：</p>
+<table>
+<thead>
+<tr>
+<th><strong>状态</strong></th>
+<th><strong>表现</strong></th>
+<th><strong>占用空间</strong></th>
+<th><strong>你的需求</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>visible</strong></td>
+<td>正常显示</td>
+<td>是</td>
+<td>默认状态</td>
+</tr>
+<tr>
+<td><strong>invisible</strong></td>
+<td>隐身（看不见）</td>
+<td><strong>是</strong></td>
+<td>依然留下一块大空白</td>
+</tr>
+<tr>
+<td><strong>gone</strong></td>
+<td><strong>彻底消失</strong></td>
+<td><strong>否</strong></td>
+<td><strong>完美去广告且不留空白</strong></td>
+</tr>
+</tbody></table>
+<ol start="2">
+<li><strong>为什么要加<code>gone</code>?作用是什么？</strong></li>
+</ol>
+<ul>
+<li><p><strong>不参与布局计算：</strong> 当你设置成 <code>gone</code> 时，安卓系统在绘制界面时会直接“无视”这个控件。它不仅看不见，原本属于它的位置会被其他控件挤上来占掉。</p>
+</li>
+<li><p><strong>比改 <code>0dp</code> 更稳：</strong> 如果改宽高为 <code>0dp</code>，控件虽然没大小，但它设置的 <code>margin</code>（外边距，比如你代码里的 <code>android:layout_marginTop=&quot;100dp&quot;</code>）可能依然会生效，导致界面留下莫名其妙的间隙。</p>
+</li>
+</ul>
+<ul>
+<li><code>gone</code> 会连同这个控件的 <code>margin</code> 效果一起抹去。</li>
+</ul>
+<ol start="3">
+<li><strong>为什么加在宽高中间？</strong></li>
+</ol>
+<p>其实，加在xml标签内的任何位置都是可以的，只要它是一个独立的属性。加在宽高之间，通常是为了：</p>
+<ul>
+<li><p><strong>方便管理：</strong> 宽高定义了“大小”，<code>visibility</code> 定义了“显隐”，放在一起逻辑上比较直观。</p>
+</li>
+<li><p><strong>快速定位：</strong> 以后你再回来修改这个文件，一眼就能看到这个控件的大小被你通过 <code>gone</code> 给“屏蔽”了。</p>
+</li>
+</ul>
+<h3 id="课后作业"><a href="#课后作业" class="headerlink" title="课后作业"></a><a href="#3">课后作业</a></h3><img src="/2026/02/12/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)/10.png" class="" title="This is an image">
+
+<p>我们要做的就是将这个弹窗广告去除（返回键被劫持），由于这和版本并没有什么关系，所以我们不能去修改versionCode来去除这个弹窗，这里有几种方法：</p>
+<ol>
+<li>使用算法助手，恢复返回键。</li>
+<li>使用算法助手，屏蔽带有<code>弹窗</code>字样的弹窗。</li>
+<li>修改xml代码，将show注释掉。</li>
+</ol>
+<p><strong>方法一：</strong></p>
+<p>**注：**因为这个apk文件是新下载的，所以需要在LSPosed中重新勾选作业demo。</p>
+<p>打开算法助手，点击作业demo，勾选弹窗定位（返回键可取消），点击右上角，弹窗启动之后，直接点击返回键就可以了。</p>
+<p>这种方法其实并没有将弹窗去除，而是恢复被劫持的返回键，当弹窗弹出时，使用返回键关闭弹窗。</p>
+<p><strong>方法二：</strong></p>
+<p>同样使用算法助手，打开<code>屏蔽关键词弹窗</code>，输入<code>弹窗</code>，点击右上角，弹窗被关闭了。</p>
+<p><strong>方法三：</strong></p>
+<p>使用算法助手，打开弹窗定位，点击右上角，弹窗弹出之后，回到算法助手。</p>
+<p>打开算法助手的日志</p>
+<img src="/2026/02/12/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)/11.png" class="" title="This is an image">
+
+<img src="/2026/02/12/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)/12.png" class="" title="This is an image">
+
+<p>可以看到<code>com.zj.wuaipojie.ui.MainActivity.onCreate</code>，大概率该弹窗就是在这个方法中，我们去MT管理器中搜索该方法</p>
+<figure class="highlight smali"><table><tr><td class="code"><pre><span class="line"><span class="keyword">.method</span><span class="keyword"> protected</span> onCreate(<span class="class">Landroid/os/Bundle;</span>)V</span><br><span class="line"><span class="keyword">    .registers</span> 9</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> invoke-static/range </span>&#123;p0 .. p0&#125;, <span class="class">Lnp/֏;</span>-&gt;ށ(<span class="class">Landroid/app/Activity;</span>)V</span><br><span class="line"></span><br><span class="line"><span class="keyword">    .line</span> 28</span><br><span class="line">   <span class="built_in"> invoke-super </span>&#123;p0, p1&#125;, <span class="class">Landroidx/appcompat/app/AppCompatActivity;</span>-&gt;onCreate(<span class="class">Landroid/os/Bundle;</span>)V</span><br><span class="line"></span><br><span class="line"><span class="keyword">    .line</span> 30</span><br><span class="line">   <span class="built_in"> invoke-virtual </span>&#123;p0&#125;, <span class="class">Lcom/zj/wuaipojie/ui/MainActivity;</span>-&gt;getLayoutInflater()<span class="class">Landroid/view/LayoutInflater;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> move-result-object </span>p1</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> invoke-static </span>&#123;p1&#125;, <span class="class">Lcom/zj/wuaipojie/databinding/ActivityMainBinding;</span>-&gt;inflate(<span class="class">Landroid/view/LayoutInflater;</span>)<span class="class">Lcom/zj/wuaipojie/databinding/ActivityMainBinding;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> move-result-object </span>p1</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> iput-object </span>p1, p0, <span class="class">Lcom/zj/wuaipojie/ui/MainActivity;</span>-&gt;binding:<span class="class">Lcom/zj/wuaipojie/databinding/ActivityMainBinding;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> const-string </span>v0, <span class="string">&quot;binding&quot;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> const/4 </span>v1, 0x0</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> if-nez </span>p1,<span class="keyword"> :cond_19</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">    .line</span> 31</span><br><span class="line">   <span class="built_in"> invoke-static </span>&#123;v0&#125;, <span class="class">Lkotlin/jvm/internal/Intrinsics;</span>-&gt;throwUninitializedPropertyAccessException(<span class="class">Ljava/lang/String;</span>)V</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> move-object </span>p1, v1</span><br><span class="line"></span><br><span class="line">   <span class="keyword"> :cond_19</span></span><br><span class="line">   <span class="built_in"> invoke-virtual </span>&#123;p1&#125;, <span class="class">Lcom/zj/wuaipojie/databinding/ActivityMainBinding;</span>-&gt;getRoot()<span class="class">Landroidx/constraintlayout/widget/ConstraintLayout;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> move-result-object </span>p1</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> check-cast </span>p1, <span class="class">Landroid/view/View;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> invoke-virtual </span>&#123;p0, p1&#125;, <span class="class">Lcom/zj/wuaipojie/ui/MainActivity;</span>-&gt;setContentView(<span class="class">Landroid/view/View;</span>)V</span><br><span class="line"></span><br><span class="line"><span class="keyword">    .line</span> 33</span><br><span class="line">   <span class="built_in"> iget-object </span>p1, p0, <span class="class">Lcom/zj/wuaipojie/ui/MainActivity;</span>-&gt;binding:<span class="class">Lcom/zj/wuaipojie/databinding/ActivityMainBinding;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> if-nez </span>p1,<span class="keyword"> :cond_2a</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> invoke-static </span>&#123;v0&#125;, <span class="class">Lkotlin/jvm/internal/Intrinsics;</span>-&gt;throwUninitializedPropertyAccessException(<span class="class">Ljava/lang/String;</span>)V</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> move-object </span>p1, v1</span><br><span class="line"></span><br><span class="line">   <span class="keyword"> :cond_2a</span></span><br><span class="line">   <span class="built_in"> iget-object </span>p1, p1, <span class="class">Lcom/zj/wuaipojie/databinding/ActivityMainBinding;</span>-&gt;navView:<span class="class">Lcom/google/android/material/bottomnavigation/BottomNavigationView;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">    .line</span> 35</span><br><span class="line">   <span class="built_in"> move-object </span>v0, p0</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> check-cast </span>v0, <span class="class">Landroid/app/Activity;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> const </span>v2, 0x7f080132</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> invoke-static </span>&#123;v0, v2&#125;, <span class="class">Landroidx/navigation/ActivityKt;</span>-&gt;findNavController(<span class="class">Landroid/app/Activity;</span>I)<span class="class">Landroidx/navigation/NavController;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> move-result-object </span>v0</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> const/4 </span>v2, 0x3</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> new-array </span>v2, v2, [<span class="class">Ljava/lang/Integer;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> const </span>v3, 0x7f08013c</span><br><span class="line"></span><br><span class="line"><span class="keyword">    .line</span> 38</span><br><span class="line">   <span class="built_in"> invoke-static </span>&#123;v3&#125;, <span class="class">Ljava/lang/Integer;</span>-&gt;valueOf(I)<span class="class">Ljava/lang/Integer;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> move-result-object </span>v3</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> const/4 </span>v4, 0x0</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> aput-object </span>v3, v2, v4</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> const </span>v3, 0x7f08013a</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> invoke-static </span>&#123;v3&#125;, <span class="class">Ljava/lang/Integer;</span>-&gt;valueOf(I)<span class="class">Ljava/lang/Integer;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> move-result-object </span>v3</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> const/4 </span>v5, 0x1</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> aput-object </span>v3, v2, v5</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> const/4 </span>v3, 0x2</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> const </span>v6, 0x7f080135</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> invoke-static </span>&#123;v6&#125;, <span class="class">Ljava/lang/Integer;</span>-&gt;valueOf(I)<span class="class">Ljava/lang/Integer;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> move-result-object </span>v6</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> aput-object </span>v6, v2, v3</span><br><span class="line"></span><br><span class="line"><span class="keyword">    .line</span> 37</span><br><span class="line">   <span class="built_in"> invoke-static </span>&#123;v2&#125;, <span class="class">Lkotlin/collections/SetsKt;</span>-&gt;setOf([<span class="class">Ljava/lang/Object;</span>)<span class="class">Ljava/util/Set;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> move-result-object </span>v2</span><br><span class="line"></span><br><span class="line"><span class="keyword">    .line</span> 96</span><br><span class="line">   <span class="built_in"> move-object </span>v3, v1</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> check-cast </span>v3, <span class="class">Landroidx/customview/widget/Openable;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">    .line</span> 97</span><br><span class="line">   <span class="built_in"> sget-object </span>v3, <span class="class">Lcom/zj/wuaipojie/ui/MainActivity$onCreate$$inlined$AppBarConfiguration$default$1;</span>-&gt;INSTANCE:<span class="class">Lcom/zj/wuaipojie/ui/MainActivity$onCreate$$inlined$AppBarConfiguration$default$1;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> check-cast </span>v3, <span class="class">Lkotlin/jvm/functions/Function0;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">    .line</span> 98</span><br><span class="line">   <span class="built_in"> new-instance </span>v6, <span class="class">Landroidx/navigation/ui/AppBarConfiguration$Builder;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> invoke-direct </span>&#123;v6, v2&#125;, <span class="class">Landroidx/navigation/ui/AppBarConfiguration$Builder;</span>-&gt;&lt;init&gt;(<span class="class">Ljava/util/Set;</span>)V</span><br><span class="line"></span><br><span class="line"><span class="keyword">    .line</span> 99</span><br><span class="line">   <span class="built_in"> invoke-virtual </span>&#123;v6, v1&#125;, <span class="class">Landroidx/navigation/ui/AppBarConfiguration$Builder;</span>-&gt;setOpenableLayout(<span class="class">Landroidx/customview/widget/Openable;</span>)<span class="class">Landroidx/navigation/ui/AppBarConfiguration$Builder;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> move-result-object </span>v1</span><br><span class="line"></span><br><span class="line"><span class="keyword">    .line</span> 100</span><br><span class="line">   <span class="built_in"> new-instance </span>v2, <span class="class">Lcom/zj/wuaipojie/ui/MainActivity$inlined$sam$i$androidx_navigation_ui_AppBarConfiguration_OnNavigateUpListener$0;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> invoke-direct </span>&#123;v2, v3&#125;, <span class="class">Lcom/zj/wuaipojie/ui/MainActivity$inlined$sam$i$androidx_navigation_ui_AppBarConfiguration_OnNavigateUpListener$0;</span>-&gt;&lt;init&gt;(<span class="class">Lkotlin/jvm/functions/Function0;</span>)V</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> check-cast </span>v2, <span class="class">Landroidx/navigation/ui/AppBarConfiguration$OnNavigateUpListener;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> invoke-virtual </span>&#123;v1, v2&#125;, <span class="class">Landroidx/navigation/ui/AppBarConfiguration$Builder;</span>-&gt;setFallbackOnNavigateUpListener(<span class="class">Landroidx/navigation/ui/AppBarConfiguration$OnNavigateUpListener;</span>)<span class="class">Landroidx/navigation/ui/AppBarConfiguration$Builder;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> move-result-object </span>v1</span><br><span class="line"></span><br><span class="line"><span class="keyword">    .line</span> 101</span><br><span class="line">   <span class="built_in"> invoke-virtual </span>&#123;v1&#125;, <span class="class">Landroidx/navigation/ui/AppBarConfiguration$Builder;</span>-&gt;build()<span class="class">Landroidx/navigation/ui/AppBarConfiguration;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> move-result-object </span>v1</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> const-string </span>v2, <span class="string">&quot;AppBarConfiguration.Buil…eUpListener)\n    .build()&quot;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> invoke-static </span>&#123;v1, v2&#125;, <span class="class">Lkotlin/jvm/internal/Intrinsics;</span>-&gt;checkExpressionValueIsNotNull(<span class="class">Ljava/lang/Object;</span><span class="class">Ljava/lang/String;</span>)V</span><br><span class="line"></span><br><span class="line"><span class="keyword">    .line</span> 41</span><br><span class="line">   <span class="built_in"> move-object </span>v2, p0</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> check-cast </span>v2, <span class="class">Landroidx/appcompat/app/AppCompatActivity;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> invoke-static </span>&#123;v2, v0, v1&#125;, <span class="class">Landroidx/navigation/ui/ActivityKt;</span>-&gt;setupActionBarWithNavController(<span class="class">Landroidx/appcompat/app/AppCompatActivity;</span><span class="class">Landroidx/navigation/NavController;</span><span class="class">Landroidx/navigation/ui/AppBarConfiguration;</span>)V</span><br><span class="line"></span><br><span class="line"><span class="keyword">    .line</span> 42</span><br><span class="line">   <span class="built_in"> invoke-static </span>&#123;p1, v0&#125;, <span class="class">Landroidx/navigation/ui/BottomNavigationViewKt;</span>-&gt;setupWithNavController(<span class="class">Lcom/google/android/material/bottomnavigation/BottomNavigationView;</span><span class="class">Landroidx/navigation/NavController;</span>)V</span><br><span class="line"></span><br><span class="line"><span class="keyword">    .line</span> 45</span><br><span class="line">   <span class="built_in"> sget-object </span>p1, <span class="class">Lcom/zj/wuaipojie/util/SPUtils;</span>-&gt;INSTANCE:<span class="class">Lcom/zj/wuaipojie/util/SPUtils;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> move-object </span>v0, p0</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> check-cast </span>v0, <span class="class">Landroid/content/Context;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> const-string </span>v1, <span class="string">&quot;FIRST_START&quot;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> invoke-virtual </span>&#123;p1, v0, v1, v5&#125;, <span class="class">Lcom/zj/wuaipojie/util/SPUtils;</span>-&gt;getBoolean(<span class="class">Landroid/content/Context;</span><span class="class">Ljava/lang/String;</span>Z)Z</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> move-result </span>p1</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> if-ne </span>p1, v5,<span class="keyword"> :cond_9d</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">    .line</span> 47</span><br><span class="line">   <span class="built_in"> invoke-virtual </span>&#123;p0&#125;, <span class="class">Lcom/zj/wuaipojie/ui/MainActivity;</span>-&gt;alertFirst()V</span><br><span class="line"></span><br><span class="line"><span class="keyword">    .line</span> 48</span><br><span class="line">   <span class="built_in"> sget-object </span>p1, <span class="class">Lcom/zj/wuaipojie/util/SPUtils;</span>-&gt;INSTANCE:<span class="class">Lcom/zj/wuaipojie/util/SPUtils;</span></span><br><span class="line"></span><br><span class="line">   <span class="built_in"> invoke-virtual </span>&#123;p1, v0, v1, v4&#125;, <span class="class">Lcom/zj/wuaipojie/util/SPUtils;</span>-&gt;saveBoolean(<span class="class">Landroid/content/Context;</span><span class="class">Ljava/lang/String;</span>Z)V</span><br><span class="line"></span><br><span class="line">   <span class="keyword"> :cond_9d</span></span><br><span class="line">   <span class="built_in"> return-void</span></span><br><span class="line"><span class="built_in"></span><span class="keyword">.end method</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这是该方法的所有代码，可以发现我们并找不到show方法，这里我还有一个问题：</p>
+<p><strong>Q:</strong> 之前看日志的时候，后面有一个数字，比如这篇文章中讲的弹窗，他后面会跟<code>kt: 53</code>，那我们就知道show方法是在line : 53，但是这个日志中却没有，这是为什么。</p>
+<p><strong>A:</strong> 在安卓编译过程中，存在一个叫做 <strong>Line Number Table（行号表）</strong> 的东西。</p>
+<ul>
+<li><strong>有行号时（如之前的 <code>ChallengeThird</code>）：</strong> 开发者在编译 APK 时，保留了原始源文件（Kotlin&#x2F;Java）与编译后的字节码（Smali）之间的对应关系。算法助手能读取到这个表，所以能精确告诉你“这是第 53 行”。</li>
+<li><strong>没行号时（当前的 <code>MainActivity</code>）：</strong> 开发者开启了<strong>混淆（ProGuard&#x2F;R8）</strong>，并配置了类似 <code> -del_sourceinfo</code> 的指令。编译工具会把所有的行号表删掉，以减小 APK 体积并增加逆向难度。<ul>
+<li><strong>Unknown Source</strong>：意味着类名对应的原始文件名（如 <code>MainActivity.kt</code>）被删除了。</li>
+<li><strong>数字 0</strong>：意味着行号信息彻底没了，系统只知道在运行这个方法，但不知道是哪一行。</li>
+</ul>
+</li>
+</ul>
+<p>言归正传，既然找不到show，那我们接下来怎么做？</p>
+<p>在日志中我们看到</p>
+<figure class="highlight smali"><table><tr><td class="code"><pre><span class="line">at android.app.AlertDialog$Builder.show(AlertDialog.java:1125)</span><br><span class="line">at np.֏.ށ(Unknown Source:38)</span><br><span class="line">at com.zj.wuaipojie.ui.MainActivity.onCreate(Unknown Source:0)</span><br></pre></td></tr></table></figure>
+
+<p>调用完<code>ށ</code>这个方法之后，调用了show方法，这说明：<strong>弹窗的动作，就是在这个 <code>ށ</code> 方法里被触发的。</strong></p>
+<p>所以我们可以直接将ށ注释掉，没有这个方法，那么就调用不了show了</p>
+<img src="/2026/02/12/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)/13.png" class="" title="This is an image">
+
+<p>保存安装看看弹窗还有没有了，发现我们成功了。</p>
+<p>在写作业时，我本来想注释掉<code>invoke-virtual &#123;p0&#125;, Lcom/zj/wuaipojie/ui/MainActivity;-&gt;alertFirst()V</code>这一行，因为我们知道有时候<code>alert</code>也是弹窗的意思，但是并没有用，这就是逆向中的“对抗”。开发者会故意写好几个弹窗方法，有的叫 <code>alert</code>，有的叫 <code>check</code>，有的用乱码命名。 <strong>不要被方法的名字迷惑，要相信日志里的堆栈信息。</strong> 日志指哪，你就打哪。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a><a href="#4">总结</a></h3><p><strong>启动广告：</strong></p>
+<ol>
+<li>使用MT管理器中的Activity记录，得到启动广告在哪一个方法中，修改时间</li>
+<li>将程序的入口页面换成程序页面，跳过广告（不建议使用）</li>
+<li>找到哪里调用了该启动广告，修改程序逻辑</li>
+</ol>
+<p><strong>弹窗广告：</strong></p>
+<ol>
+<li>如果是更新之类的广告，在xml文件中修改versionCode</li>
+<li>使用算法助手，恢复被劫持的返回键</li>
+<li>使用算法助手，屏蔽带有关键词的弹窗</li>
+<li>查看日志，找到调用该广告的方法，注释掉show</li>
+</ol>
+<p><strong>横幅广告：</strong></p>
+<ol>
+<li>使用开发助手，获得广告的id，在xml文件中修改广告的宽高为0bp</li>
+<li>在文件的宽高之间加上<code>android:visibility=&quot;goon&quot;</code></li>
+</ol>
+]]></content>
+      <tags>
+        <tag>安卓逆向</tag>
+      </tags>
+  </entry>
 </search>
