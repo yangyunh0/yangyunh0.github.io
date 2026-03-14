@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 8.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Android逆向学习笔记(九)《安卓逆向这档事》六、校验的N次方-签名校验对抗、PM代{过}{滤}理、IO重定向 - 吾爱破解 - 52pojie.cn">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android逆向学习笔记(九)">
+<meta property="og:url" content="http://example.com/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/index.html">
+<meta property="og:site_name" content="yangyunhui">
+<meta property="og:description" content="Android逆向学习笔记(九)《安卓逆向这档事》六、校验的N次方-签名校验对抗、PM代{过}{滤}理、IO重定向 - 吾爱破解 - 52pojie.cn">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-03-14T03:02:16.000Z">
+<meta property="article:modified_time" content="2026-03-14T03:13:34.754Z">
+<meta property="article:author" content="yangyunhui">
+<meta property="article:tag" content="安卓逆向">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Android逆向学习笔记(九) | yangyunhui</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">yangyunhui</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">功不唐捐，玉汝于成</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/tx.jpg">
+      <meta itemprop="name" content="yangyunhui">
+      <meta itemprop="description" content="前踪杳杳，后途昭昭">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yangyunhui">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Android逆向学习笔记(九)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-03-14 11:02:16 / 修改时间：11:13:34" itemprop="dateCreated datePublished" datetime="2026-03-14T11:02:16+08:00">2026-03-14</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>7.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>13 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Android逆向学习笔记-九"><a href="#Android逆向学习笔记-九" class="headerlink" title="Android逆向学习笔记(九)"></a>Android逆向学习笔记(九)</h2><p><a target="_blank" rel="noopener" href="https://www.52pojie.cn/thread-1731181-1-1.html">《安卓逆向这档事》六、校验的N次方-签名校验对抗、PM代{过}{滤}理、IO重定向 - 吾爱破解 - 52pojie.cn</a></p>
+<span id="more"></span>
+
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li><a href="#1">什么是校验</a></li>
+<li><a href="#2">什么是apk签名</a></li>
+<li><a href="#3">什么是签名校验</a></li>
+<li><a href="#4">PM代理</a></li>
+<li><a href="#5">IO重定向</a></li>
+<li><a href="#6">root校验</a></li>
+<li><a href="#7">smali语法之赋值</a></li>
+</ul>
+<hr>
+<h3 id="什么是校验"><a href="#什么是校验" class="headerlink" title="什么是校验"></a><a href="#1">什么是校验</a></h3><p>是开发者在数据传送时采用的一种校正数据的一种方式<br>常见的校验有:签名校验(最常见)、dexcrc校验、apk完整性校验、路径文件校验等</p>
+<p><strong>这里我有一个疑问：矫正数据是什么意思，一般我们理解的都是修正的意思，但在这里我觉得应该是判断与之前一样不一样的意思，为什么要使用这个词？？</strong></p>
+<p><strong>在逆向和安全环境中（判断的意思）</strong></p>
+<p>但在你看到的安卓代码或逆向分析中，它更多是指 <strong>“校验”</strong> 。</p>
+<ul>
+<li><strong>核心逻辑</strong> ：判断“现在的”和“原来的”一不一样。</li>
+<li><strong>为什么也叫矫正？ ** 因为它是在</strong>核对正误**。如果不一样，系统会认为当前数据是“歪的”（被篡改了），从而拒绝运行。</li>
+</ul>
+<h3 id="什么是apk签名"><a href="#什么是apk签名" class="headerlink" title="什么是apk签名"></a><a href="#2">什么是apk签名</a></h3><p>通过对 Apk 进行签名，开发者可以证明对 Apk 的所有权和控制权，可用于安装和更新其应用。而在 Android 设备上的安装 Apk ，如果是一个没有被签名的 Apk，则会被拒绝安装。在安装 Apk 的时候，软件包管理器也会验证 Apk 是否已经被正确签名，并且通过签名证书和数据摘要验证是否合法没有被篡改。只有确认安全无篡改的情况下，才允许安装在设备上。</p>
+<p>简单来说，APK 的签名主要作用有两个：</p>
+<ol>
+<li>证明 APK 的所有者。</li>
+<li>允许 Android 市场和设备校验 APK 的正确性。</li>
+</ol>
+<p>Android 目前支持以下四种应用签名方案：<br>v1 方案：基于 JAR 签名。<br>v2 方案：APK 签名方案 v2（在 Android 7.0 中引入）<br>v3 方案：APK 签名方案 v3（在 Android 9 中引入）<br>v4 方案：APK 签名方案 v4（在 Android 11 中引入）</p>
+<p>V1 签名的机制主要就在 META-INF 目录下的三个文件，MANIFEST.MF，ANDROID.SF，ANDROID.RSA，他们都是 V1 签名的产物。</p>
+<p>在某些情况下，直接对apk进行v1签名可以绕过apk的签名校验</p>
+<p>v2方案会将 APK 文件视为 blob，并对整个文件进行签名检查。对 APK 进行的任何修改（包括对 ZIP 元数据进行的修改）都会使 APK 签名作废。这种形式的 APK 验证不仅速度要快得多，而且能够发现更多种未经授权的修改。</p>
+<h3 id="什么是签名校验"><a href="#什么是签名校验" class="headerlink" title="什么是签名校验"></a><a href="#3">什么是签名校验</a></h3><p><strong>签名校验</strong>是应用在运行时，通过代码主动调取系统接口，核对当前 APK 的<strong>数字签名（指纹）</strong> 是否与开发者预设的 <strong>原始指纹</strong> 一致的过程。</p>
+<p><strong>怎么判断apk文件是不是有签名校验</strong></p>
+<p>不做任何修改，直接签名安装，应用闪退则说明大概率有签名校验</p>
+<p>一般来说，普通的签名校验会导致软件的闪退，黑屏，卡启动页等<br>当然，以上都算是比较好的，有一些比较狠的作者，则会直接rm -rf &#x2F;，把基带都格掉的一键变砖。</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">kill/killProcess-----kill/KillProcess()可以杀死当前应用活动的进程，这一操作将会把所有该进程内的资源（包括线程全部清理掉）.当然，由于ActivityManager时刻监听着进程，一旦发现进程被非正常Kill，它将会试图去重启这个进程。这就是为什么，有时候当我们试图这样去结束掉应用时，发现它又自动重新启动的原因.</span><br><span class="line"><span class="keyword"></span></span><br><span class="line"><span class="keyword">system</span>.exit-----杀死了整个进程，这时候活动所占的资源也会被释放。</span><br><span class="line"></span><br><span class="line">finish----------仅仅针对Activity，当调用finish()时，只是将活动推向后台，并没有立即释放内存，活动的资源并没有被清理</span><br></pre></td></tr></table></figure>
+
+
+
+<p><mark>使用demo认识签名校验</mark></p>
+<p>直接使用MT管理器对apk文件进行签名</p>
+<p>签名之后发现打开第五关之后会自己闪退，想办法将这个机制去掉。打开算法助手，打开wuaipojie的开关，选择 <code>拦截应用闪退</code>和<code>防止应用闪退</code>，在算法助手中将这个apk文件打开之后，查看日志。日志如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">调用堆栈：</span><br><span class="line">        at hJr.sE.hP.to.QCVJPblCp.XposedBridge$LegacyApiSupport.handleBefore(Unknown Source:24)</span><br><span class="line">        at J.callback(Unknown Source:179)</span><br><span class="line">        at LSPHooker_.exit(Unknown Source:15)</span><br><span class="line">        at java.lang.System.exit(System.java:1502)</span><br><span class="line">        at java.lang.reflect.Method.invoke(Native Method)</span><br><span class="line">        at gEBwZia.zy.PkaMim.Q.ASHZ.hZju.HookBridge.invokeOriginalMethod(Native Method)</span><br><span class="line">        at J.callback(Unknown Source:193)</span><br><span class="line">        at LSPHooker_.exit(Unknown Source:12)</span><br><span class="line">        at com.zj.wuaipojie.ui.ChallengeFifth.onCreate(ChallengeFifth.kt:57)</span><br><span class="line">        at android.app.Activity.performCreate(Activity.java:7284)</span><br><span class="line">        at android.app.Activity.performCreate(Activity.java:7275)</span><br><span class="line">        at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1271)</span><br><span class="line">        at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2938)</span><br><span class="line">        at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:3093)</span><br><span class="line">        at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:78)</span><br><span class="line">        at android.app.servertransaction.TransactionExecutor.executeCallbacks(TransactionExecutor.java:108)</span><br><span class="line">        at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:68)</span><br><span class="line">        at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1823)</span><br><span class="line">        at android.os.Handler.dispatchMessage(Handler.java:106)</span><br><span class="line">        at android.os.Looper.loop(Looper.java:193)</span><br><span class="line">        at android.app.ActivityThread.main(ActivityThread.java:6838)</span><br><span class="line">        at java.lang.reflect.Method.invoke(Native Method)</span><br><span class="line">        at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:493)</span><br><span class="line">        at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:860)</span><br></pre></td></tr></table></figure>
+
+<p><code>at com.zj.wuaipojie.ui.ChallengeFifth.onCreate(ChallengeFifth.kt:57)</code>这句是至关重要的，根据日志可以知道system.exit是在这个函数中调用的。</p>
+<p>{asset_img 1.png This is an image %}</p>
+<p>可以看到，在这个函数中确实调用了这个函数，将他注释掉，就不会再黑屏卡住了。</p>
+<p>{asset_img 2.png This is an image %}</p>
+<p>当我在MT管理器中修改签名之后，在进行普通签名校验时没通过，看到源代码之后</p>
+<p>{asset_img 3.png This is an image %}</p>
+<p>其实可以发现，普通签名校验就是<code>checksign</code>，观察<code>checksign</code>函数的方法，是先对messageDigest进行sha编码，之后再进行base64编码，将得到的strEncodeToString与SIGNATURE进行对比，这里想绕过普通签名，有两种方法：</p>
+<ol>
+<li>修改if，使得即使不相等，也能返回true</li>
+<li>将SIGNATURE修改为换签名之后apk文件的签名</li>
+</ol>
+<p><mark>方法一：修改If</mark></p>
+<p>在MT管理器中搜索<code>com.zj.wuaipojie.ui.ChallengeFifth.checkSign</code></p>
+<p>{asset_img 4.png This is an image %}</p>
+<p>根据变量名和方法名，可以判断这个<code>if-nez</code>就是我们需要改的那个if，将<code>if-nez</code>（这个是不等于not equal的意思），改成<code>if-eql</code>（这个是等于的意思）</p>
+<p><mark>方法二：修改SIGNATURE</mark></p>
+<p>还是在<code>com.zj.wuaipojie.ui.ChallengeFifth.checkSign</code>，在修改<code>SIGNATURE</code>之前，先使用算法助手得到修改之后的apk文件的校验值</p>
+<p>在算法助手中，勾选<code>读取应用签名监听</code>，之后查看日志</p>
+<p>{asset_img 5.png This is an image %}</p>
+<p>这个<code>Ye03foXThqjf7muGS9hbC/qlr4E=</code>就是修改之后的签名</p>
+<p>使用导航，切换到字符串，双击该签名就可以导航到该位置</p>
+<p>{asset_img 6.png This is an image %}</p>
+<p>将此位置换成<code>Ye03foXThqjf7muGS9hbC/qlr4E=</code></p>
+<p>{asset_img 7.png This is an image %}</p>
+<p>可以看到这个普通签名就通过了</p>
+<p>但是 <strong>新的API签名校验</strong> 还是没有通过，这两个校验实际用的都是同一种方法，先看源码：</p>
+<p>{asset_img 8.png This is an image %}</p>
+<p>还是通过与正确签名进行比较，还是可以使用上面的方法，使用算法助手得到修改之后的API签名，然后在修改smali代码，因为这里并没有使用If语句，所以不能修改If判断条件，打开算法助手，在算法助手中打开demo，查看日志，由于新的API签是有<code>newsign</code>这个字符串的，所以可以直接搜索这个。</p>
+<p>{asset_img 9.png This is an image %}</p>
+<p>直接将这个newsign替换成日志中这个就可以了</p>
+<h3 id="PM代理"><a href="#PM代理" class="headerlink" title="PM代理"></a><a href="#4">PM代理</a></h3><h4 id="PMS（PackageManagerService）"><a href="#PMS（PackageManagerService）" class="headerlink" title="PMS（PackageManagerService）"></a>PMS（PackageManagerService）</h4><ul>
+<li><strong>是什么</strong>：<br>PMS 是 Android 系统的一个核心服务（运行在 <code>system_server</code> 进程），全称为 <strong>PackageManagerService</strong>。它负责管理系统中所有已安装应用的信息，包括包名、版本、权限、签名、组件等。</li>
+<li><strong>作用</strong>：<br>当应用通过 <code>PackageManager</code> 接口查询信息（如调用 <code>getPackageInfo</code>）时，实际是通过 Binder 通信向 PMS 发起请求，PMS 从系统数据库或 APK 文件中读取真实数据后返回。</li>
+<li><strong>关键点</strong>：<ul>
+<li>运行在系统进程，拥有最高权限。</li>
+<li>返回的数据是真实的（基于当前安装的 APK）。</li>
+<li>无法直接修改（除非 Root 后 Hook 系统服务）。</li>
+</ul>
+</li>
+</ul>
+<h4 id="PM代理的原理"><a href="#PM代理的原理" class="headerlink" title="PM代理的原理"></a>PM代理的原理</h4><ul>
+<li><strong>是什么</strong>：<br>PM代理是一种<strong>Hook技术</strong>，指在应用层或框架层拦截应用对 <code>PackageManager</code> 的调用，并返回伪造的数据（如篡改签名信息）。它不是系统服务，而是逆向工程师插入的中间层。</li>
+<li><strong>原理</strong>：<br>通过 Hook 框架（如 Xposed、Frida）或动态代理，替换 <code>PackageManager</code> 对象或拦截其方法，在调用 PMS 之前或之后修改返回值。例如，当应用请求签名时，PM代理将真实的签名替换为预先保存的原始签名。</li>
+<li><strong>关键点</strong>：<ul>
+<li>运行在应用进程（通过代码注入）。</li>
+<li>返回的数据是伪造的（为了绕过校验）。</li>
+<li>需要 Hook 环境（Root、Xposed 框架等）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="IO重定向"><a href="#IO重定向" class="headerlink" title="IO重定向"></a><a href="#5">IO重定向</a></h3><p><strong>IO重定向</strong>（Input&#x2F;Output Redirection）在安卓逆向中，是指通过技术手段拦截并修改应用程序的输入输出操作，使其实际访问的资源与原本意图不同。其核心原理是在数据流动的通路中插入一个中间层，劫持原始操作，并将其重定向到开发者指定的目标。</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sget-object p10, <span class="class">Lcom/zj/wuaipojie/util/ContextUtils;</span>-&gt;INSTANCE:<span class="class">Lcom/zj/wuaipojie/util/ContextUtils;</span>  </span><br><span class="line"></span><br><span class="line">  <span class="built_in"> invoke-virtual </span>&#123;p10&#125;, <span class="class">Lcom/zj/wuaipojie/util/ContextUtils;</span>-&gt;getContext()<span class="class">Landroid/content/Context;</span>  </span><br><span class="line"></span><br><span class="line">  <span class="built_in"> move-result-object </span>p10  </span><br><span class="line"></span><br><span class="line">  <span class="built_in"> invoke-static </span>&#123;p10&#125;, <span class="class">Lcom/zj/wuaipojie/util/SecurityUtil;</span>-&gt;hook(<span class="class">Landroid/content/Context;</span>)V</span><br></pre></td></tr></table></figure>
+
+<p>不知道为什么我使用io定向，但是没有过crc校验，并且在数据目录一中也没有lib目录，看评论区也有同学和我一样的问题，可能是因为Android版本问题。</p>
+<p>但是不妨碍用这个方法去写，我将步骤写下来：</p>
+<p>首先在搜索<code>com.zj.wuaipojie.ui.ChallengeFifth.useNewAPICheck</code>,点击导航，因为我要重定向的是crc，所以使用导航找到check_crc这个函数之后，长按选择</p>
+<p><code>查看调用处</code>，找到调用的函数之后，正在该函数开头加上上面的smali代码，保存安装。</p>
+<p>之后在apk文件的数据目录1下新建文件夹files，在该文件夹中加入原始apk文件。</p>
+<p>还有一种方法也可以绕过，就是通过修改If的判断条件，将nez改成eqz就可以了。</p>
+<h3 id="root校验"><a href="#root校验" class="headerlink" title="root校验"></a><a href="#6">root校验</a></h3><p><strong>root校验</strong>是指应用程序检测设备是否已被获取超级用户权限（即root）的一种安全机制。开发者通过这种校验来判断当前运行环境是否为“不安全”的root设备，并据此采取相应措施，例如拒绝运行、隐藏敏感功能或直接退出应用。</p>
+<p>{asset_img 10.png This is an image %}</p>
+<h3 id="smali语法之赋值"><a href="#smali语法之赋值" class="headerlink" title="smali语法之赋值"></a><a href="#7">smali语法之赋值</a></h3><p>{asset_img 11.png This is an image %}</p>
+<p>任务是将非会员改成会员，会员未到期，以及钻石数量不为零。</p>
+<p><mark>VIP</mark></p>
+<p>{asset_img 12.png This is an image %}</p>
+<p>这个代码就是检测你是否是VIP的逻辑。</p>
+<p>在MT管理器中搜索<code>非会员</code>并且将<code>isvip</code>的值改成99。</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">.method</span><span class="keyword"> public</span><span class="keyword"> final</span> isVip()I</span><br><span class="line"><span class="keyword">    .registers</span> 2</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> const/4 </span>v0, 0x0</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> return </span>v0<span class="keyword"></span></span><br><span class="line"><span class="keyword">.end method</span></span><br></pre></td></tr></table></figure>
+
+<p><code>const/4 v0, 0x0</code>我们需要将v0的值改成99，首先需要注意的就是<code>const/4</code>和<code>const/16</code>的区别是什么。</p>
+<p><strong>1. const&#x2F;4</strong></p>
+<ul>
+<li><strong>数据格式</strong> ：4位有符号整数，即 -8~7（包含）</li>
+<li><strong>指令格式</strong>：<code>const/4 vA, #+B</code></li>
+<li><strong>特点</strong>：<ul>
+<li>指令长度 <strong>2 字节</strong>，非常紧凑，节省代码空间。</li>
+<li>只能加载很小的整数（如 0、1、5、-3 等）。</li>
+<li>如果尝试加载超出此范围的常量（如 16），汇编器会报错或自动改用更宽的指令。</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. const&#x2F;16</strong></p>
+<ul>
+<li><strong>数值范围</strong>：16 位有符号整数，即 <strong>-32768 到 32767</strong>。</li>
+<li><strong>指令格式</strong>：<code>const/16 vAA, #+BBBB</code></li>
+<li><strong>特点</strong>：<ul>
+<li>指令长度 <strong>3 字节</strong>（操作码 1 字节 + 寄存器 1 字节 + 常量 2 字节）。</li>
+<li>用于加载中等大小的常量，如 1000、-20000 等。</li>
+<li>当常量超出 16 位范围时，需使用 <code>const</code>（32 位）或 <code>const/high16</code> 等。</li>
+</ul>
+</li>
+</ul>
+<p>所以如果想将v0的值赋值为99的话，需要将<code>const/4</code>改成<code>const/16</code>，并且是十六进制。</p>
+<p>{asset_img 13.png This is an image %}</p>
+<p>{asset_img 14.png This is an image %}</p>
+<p><mark>会员到期时间</mark></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="type">long</span> <span class="title function_">vipEndTime</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1671889481513L</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>1671889481513L</code>是一个时间戳</p>
+<p><a target="_blank" rel="noopener" href="https://www.beijing-time.org/shijianchuo/">在线时间戳转换工具</a></p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">.method</span><span class="keyword"> public</span><span class="keyword"> final</span> vipEndTime()J</span><br><span class="line"><span class="keyword">    .registers</span> 3</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> const-wide </span>v0, 0xf69584f71111L</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> return-wide </span>v0</span><br></pre></td></tr></table></figure>
+
+<p>这是修改之后的代码。随便写了一个数，竟然10000多年了。</p>
+<p><mark>钻石数量</mark></p>
+<p>{asset_img 15.png This is an image %}</p>
+<p>还是根据非会员找到了vip_coin，导航找到了所有调用处。</p>
+<p>点击一个，选中，点击搜索，选择正则，就可以复制出来<code>iget p0, p0, Lcom/zj/wuaipojie/ui/SmaliLearn;-&gt;vip_coin:I</code>，接着正则搜索，这时候搜索，原本有两个地方调用，但是搜索出来只剩一个调用了，有时候有成千上万个地方都有，这时候我们就可以用到正则</p>
+<p>{asset_img 16.png This is an image %}</p>
+<p>{asset_img 17.png This is an image %}</p>
+<p>注意这个.*后面应该没有，我写错了。</p>
+<p>{asset_img 18.png This is an image %}</p>
+<p>这个<code>$1</code>会自动转换成()框住的寄存器，也就是说对框住的寄存器进行赋值。</p>
+<p>不知道为啥我替换完之后，是<code>const/4 p0, p0, 0x2</code>的，明显是错的，因为有三个寄存器。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%AE%89%E5%8D%93%E9%80%86%E5%90%91/" rel="tag"># 安卓逆向</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/02/20/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%85%AB)/" rel="prev" title="Android逆向学习笔记(八)">
+      <i class="fa fa-chevron-left"></i> Android逆向学习笔记(八)
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B9%9D"><span class="nav-number">1.</span> <span class="nav-text">Android逆向学习笔记(九)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">1.1.</span> <span class="nav-text">目录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%A0%A1%E9%AA%8C"><span class="nav-number">1.2.</span> <span class="nav-text">什么是校验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFapk%E7%AD%BE%E5%90%8D"><span class="nav-number">1.3.</span> <span class="nav-text">什么是apk签名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E7%AD%BE%E5%90%8D%E6%A0%A1%E9%AA%8C"><span class="nav-number">1.4.</span> <span class="nav-text">什么是签名校验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PM%E4%BB%A3%E7%90%86"><span class="nav-number">1.5.</span> <span class="nav-text">PM代理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#PMS%EF%BC%88PackageManagerService%EF%BC%89"><span class="nav-number">1.5.1.</span> <span class="nav-text">PMS（PackageManagerService）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PM%E4%BB%A3%E7%90%86%E7%9A%84%E5%8E%9F%E7%90%86"><span class="nav-number">1.5.2.</span> <span class="nav-text">PM代理的原理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IO%E9%87%8D%E5%AE%9A%E5%90%91"><span class="nav-number">1.6.</span> <span class="nav-text">IO重定向</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#root%E6%A0%A1%E9%AA%8C"><span class="nav-number">1.7.</span> <span class="nav-text">root校验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#smali%E8%AF%AD%E6%B3%95%E4%B9%8B%E8%B5%8B%E5%80%BC"><span class="nav-number">1.8.</span> <span class="nav-text">smali语法之赋值</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="yangyunhui"
+      src="/images/tx.jpg">
+  <p class="site-author-name" itemprop="name">yangyunhui</p>
+  <div class="site-description" itemprop="description">前踪杳杳，后途昭昭</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://blog.csdn.net/yyh3155518319?spm=1000.2115.3001.5343" title="https:&#x2F;&#x2F;blog.csdn.net&#x2F;yyh3155518319?spm&#x3D;1000.2115.3001.5343" rel="noopener" target="_blank">CSDN</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yangyunhui</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">94k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:51</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+ 
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
