@@ -2430,11 +2430,14 @@
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">调用堆栈：</span><br><span class="line">        at hJr.sE.hP.to.QCVJPblCp.XposedBridge$LegacyApiSupport.handleBefore(Unknown Source:24)</span><br><span class="line">        at J.callback(Unknown Source:179)</span><br><span class="line">        at LSPHooker_.exit(Unknown Source:15)</span><br><span class="line">        at java.lang.System.exit(System.java:1502)</span><br><span class="line">        at java.lang.reflect.Method.invoke(Native Method)</span><br><span class="line">        at gEBwZia.zy.PkaMim.Q.ASHZ.hZju.HookBridge.invokeOriginalMethod(Native Method)</span><br><span class="line">        at J.callback(Unknown Source:193)</span><br><span class="line">        at LSPHooker_.exit(Unknown Source:12)</span><br><span class="line">        at com.zj.wuaipojie.ui.ChallengeFifth.onCreate(ChallengeFifth.kt:57)</span><br><span class="line">        at android.app.Activity.performCreate(Activity.java:7284)</span><br><span class="line">        at android.app.Activity.performCreate(Activity.java:7275)</span><br><span class="line">        at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1271)</span><br><span class="line">        at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2938)</span><br><span class="line">        at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:3093)</span><br><span class="line">        at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:78)</span><br><span class="line">        at android.app.servertransaction.TransactionExecutor.executeCallbacks(TransactionExecutor.java:108)</span><br><span class="line">        at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:68)</span><br><span class="line">        at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1823)</span><br><span class="line">        at android.os.Handler.dispatchMessage(Handler.java:106)</span><br><span class="line">        at android.os.Looper.loop(Looper.java:193)</span><br><span class="line">        at android.app.ActivityThread.main(ActivityThread.java:6838)</span><br><span class="line">        at java.lang.reflect.Method.invoke(Native Method)</span><br><span class="line">        at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:493)</span><br><span class="line">        at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:860)</span><br></pre></td></tr></table></figure>
 
 <p><code>at com.zj.wuaipojie.ui.ChallengeFifth.onCreate(ChallengeFifth.kt:57)</code>这句是至关重要的，根据日志可以知道system.exit是在这个函数中调用的。</p>
-<p>{asset_img 1.png This is an image %}</p>
+<img src="/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/1.png" class="" title="This is an image">
+
 <p>可以看到，在这个函数中确实调用了这个函数，将他注释掉，就不会再黑屏卡住了。</p>
-<p>{asset_img 2.png This is an image %}</p>
+<img src="/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/2.png" class="" title="This is an image">
+
 <p>当我在MT管理器中修改签名之后，在进行普通签名校验时没通过，看到源代码之后</p>
-<p>{asset_img 3.png This is an image %}</p>
+<img src="/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/3.png" class="" title="This is an image">
+
 <p>其实可以发现，普通签名校验就是<code>checksign</code>，观察<code>checksign</code>函数的方法，是先对messageDigest进行sha编码，之后再进行base64编码，将得到的strEncodeToString与SIGNATURE进行对比，这里想绕过普通签名，有两种方法：</p>
 <ol>
 <li>修改if，使得即使不相等，也能返回true</li>
@@ -2442,22 +2445,28 @@
 </ol>
 <p><mark>方法一：修改If</mark></p>
 <p>在MT管理器中搜索<code>com.zj.wuaipojie.ui.ChallengeFifth.checkSign</code></p>
-<p>{asset_img 4.png This is an image %}</p>
+<img src="/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/4.png" class="" title="This is an image">
+
 <p>根据变量名和方法名，可以判断这个<code>if-nez</code>就是我们需要改的那个if，将<code>if-nez</code>（这个是不等于not equal的意思），改成<code>if-eql</code>（这个是等于的意思）</p>
 <p><mark>方法二：修改SIGNATURE</mark></p>
 <p>还是在<code>com.zj.wuaipojie.ui.ChallengeFifth.checkSign</code>，在修改<code>SIGNATURE</code>之前，先使用算法助手得到修改之后的apk文件的校验值</p>
 <p>在算法助手中，勾选<code>读取应用签名监听</code>，之后查看日志</p>
-<p>{asset_img 5.png This is an image %}</p>
+<img src="/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/5.png" class="" title="This is an image">
+
 <p>这个<code>Ye03foXThqjf7muGS9hbC/qlr4E=</code>就是修改之后的签名</p>
 <p>使用导航，切换到字符串，双击该签名就可以导航到该位置</p>
-<p>{asset_img 6.png This is an image %}</p>
+<img src="/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/6.png" class="" title="This is an image">
+
 <p>将此位置换成<code>Ye03foXThqjf7muGS9hbC/qlr4E=</code></p>
-<p>{asset_img 7.png This is an image %}</p>
+<img src="/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/7.png" class="" title="This is an image">
+
 <p>可以看到这个普通签名就通过了</p>
 <p>但是 <strong>新的API签名校验</strong> 还是没有通过，这两个校验实际用的都是同一种方法，先看源码：</p>
-<p>{asset_img 8.png This is an image %}</p>
+<img src="/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/8.png" class="" title="This is an image">
+
 <p>还是通过与正确签名进行比较，还是可以使用上面的方法，使用算法助手得到修改之后的API签名，然后在修改smali代码，因为这里并没有使用If语句，所以不能修改If判断条件，打开算法助手，在算法助手中打开demo，查看日志，由于新的API签是有<code>newsign</code>这个字符串的，所以可以直接搜索这个。</p>
-<p>{asset_img 9.png This is an image %}</p>
+<img src="/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/9.png" class="" title="This is an image">
+
 <p>直接将这个newsign替换成日志中这个就可以了</p>
 <h3 id="PM代理"><a href="#PM代理" class="headerlink" title="PM代理"></a><a href="#4">PM代理</a></h3><h4 id="PMS（PackageManagerService）"><a href="#PMS（PackageManagerService）" class="headerlink" title="PMS（PackageManagerService）"></a>PMS（PackageManagerService）</h4><ul>
 <li><strong>是什么</strong>：<br>PMS 是 Android 系统的一个核心服务（运行在 <code>system_server</code> 进程），全称为 <strong>PackageManagerService</strong>。它负责管理系统中所有已安装应用的信息，包括包名、版本、权限、签名、组件等。</li>
@@ -2489,11 +2498,14 @@
 <p>之后在apk文件的数据目录1下新建文件夹files，在该文件夹中加入原始apk文件。</p>
 <p>还有一种方法也可以绕过，就是通过修改If的判断条件，将nez改成eqz就可以了。</p>
 <h3 id="root校验"><a href="#root校验" class="headerlink" title="root校验"></a><a href="#6">root校验</a></h3><p><strong>root校验</strong>是指应用程序检测设备是否已被获取超级用户权限（即root）的一种安全机制。开发者通过这种校验来判断当前运行环境是否为“不安全”的root设备，并据此采取相应措施，例如拒绝运行、隐藏敏感功能或直接退出应用。</p>
-<p>{asset_img 10.png This is an image %}</p>
-<h3 id="smali语法之赋值"><a href="#smali语法之赋值" class="headerlink" title="smali语法之赋值"></a><a href="#7">smali语法之赋值</a></h3><p>{asset_img 11.png This is an image %}</p>
+<img src="/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/10.png" class="" title="This is an image">
+
+<h3 id="smali语法之赋值"><a href="#smali语法之赋值" class="headerlink" title="smali语法之赋值"></a><a href="#7">smali语法之赋值</a></h3><img src="/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/11.png" class="" title="This is an image">
+
 <p>任务是将非会员改成会员，会员未到期，以及钻石数量不为零。</p>
 <p><mark>VIP</mark></p>
-<p>{asset_img 12.png This is an image %}</p>
+<img src="/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/12.png" class="" title="This is an image">
+
 <p>这个代码就是检测你是否是VIP的逻辑。</p>
 <p>在MT管理器中搜索<code>非会员</code>并且将<code>isvip</code>的值改成99。</p>
 <figure class="highlight smali"><table><tr><td class="code"><pre><span class="line"><span class="keyword">.method</span><span class="keyword"> public</span><span class="keyword"> final</span> isVip()I</span><br><span class="line"><span class="keyword">    .registers</span> 2</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> const/4 </span>v0, 0x0</span><br><span class="line"></span><br><span class="line">   <span class="built_in"> return </span>v0<span class="keyword"></span></span><br><span class="line"><span class="keyword">.end method</span></span><br></pre></td></tr></table></figure>
@@ -2522,8 +2534,10 @@
 </li>
 </ul>
 <p>所以如果想将v0的值赋值为99的话，需要将<code>const/4</code>改成<code>const/16</code>，并且是十六进制。</p>
-<p>{asset_img 13.png This is an image %}</p>
-<p>{asset_img 14.png This is an image %}</p>
+<img src="/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/13.png" class="" title="This is an image">
+
+<img src="/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/14.png" class="" title="This is an image">
+
 <p><mark>会员到期时间</mark></p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="type">long</span> <span class="title function_">vipEndTime</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1671889481513L</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
@@ -2533,13 +2547,17 @@
 
 <p>这是修改之后的代码。随便写了一个数，竟然10000多年了。</p>
 <p><mark>钻石数量</mark></p>
-<p>{asset_img 15.png This is an image %}</p>
+<img src="/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/15.png" class="" title="This is an image">
+
 <p>还是根据非会员找到了vip_coin，导航找到了所有调用处。</p>
 <p>点击一个，选中，点击搜索，选择正则，就可以复制出来<code>iget p0, p0, Lcom/zj/wuaipojie/ui/SmaliLearn;-&gt;vip_coin:I</code>，接着正则搜索，这时候搜索，原本有两个地方调用，但是搜索出来只剩一个调用了，有时候有成千上万个地方都有，这时候我们就可以用到正则</p>
-<p>{asset_img 16.png This is an image %}</p>
-<p>{asset_img 17.png This is an image %}</p>
+<img src="/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/16.png" class="" title="This is an image">
+
+<img src="/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/17.png" class="" title="This is an image">
+
 <p>注意这个.*后面应该没有，我写错了。</p>
-<p>{asset_img 18.png This is an image %}</p>
+<img src="/2026/03/14/Android%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B9%9D)/18.png" class="" title="This is an image">
+
 <p>这个<code>$1</code>会自动转换成()框住的寄存器，也就是说对框住的寄存器进行赋值。</p>
 <p>不知道为啥我替换完之后，是<code>const/4 p0, p0, 0x2</code>的，明显是错的，因为有三个寄存器。</p>
 ]]></content>
